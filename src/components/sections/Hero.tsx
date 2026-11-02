@@ -23,7 +23,7 @@ export function Hero() {
           </Reveal>
 
           <Reveal delay={0.06}>
-            <h1 className="text-display mt-6 text-primary">{profile.name}</h1>
+            <h1 className="text-display mt-6 text-primary uppercase">{profile.name}</h1>
           </Reveal>
 
           <Reveal delay={0.12}>
@@ -32,7 +32,7 @@ export function Hero() {
             </p>
           </Reveal>
 
-          <RevealGroup className="mt-10 flex flex-wrap items-center gap-3" delay={0.18}>
+          <RevealGroup className="mt-10 flex flex-wrap items-center gap-3">
             <RevealItem>
               <ActionLink href="/#topology" variant="secondary" size="lg">
                 Explore system

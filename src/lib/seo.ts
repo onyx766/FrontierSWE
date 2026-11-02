@@ -38,7 +38,8 @@ export function buildMetadata({
   keywords = [],
 }: PageMetaInput): Metadata {
   const url = `${SITE_URL}${path === '/' ? '' : path}`;
-  const ogImage = image ?? `${url}/opengraph-image`;
+  // Defaults to the site-wide OG image; pass `image` for a per-page one.
+  const ogImage = image ?? `${SITE_URL}/opengraph-image`;
 
   return {
     title,

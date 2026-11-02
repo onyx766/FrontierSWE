@@ -1,5 +1,9 @@
 'use client';
 
+// Framer Motion is used here and nowhere else in the global bundle: animating
+// an SVG circle's cx/cy between arbitrary points is exactly the job it is good
+// at, and this component only ships on project pages. Simple scroll reveals
+// use CSS instead — see components/primitives/Reveal.tsx.
 import { motion } from 'framer-motion';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { MonoLabel } from '@/components/primitives/MonoLabel';

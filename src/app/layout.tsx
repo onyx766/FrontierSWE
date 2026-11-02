@@ -47,6 +47,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
       <body className="min-h-dvh antialiased">
+        {/*
+          Marks that JavaScript is running, synchronously and before any content
+          paints. The scroll-reveal CSS is scoped to `html[data-js]`, so without
+          JavaScript nothing is hidden behind an IntersectionObserver that will
+          never fire — the page simply renders fully visible.
+        */}
+        <script
+          dangerouslySetInnerHTML={{ __html: "document.documentElement.dataset.js='1'" }}
+        />
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:border focus:border-accent focus:bg-void focus:px-4 focus:py-2 focus:font-mono focus:text-xs focus:tracking-[0.18em] focus:text-accent focus:uppercase"

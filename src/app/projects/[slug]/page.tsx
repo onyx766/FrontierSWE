@@ -18,6 +18,7 @@ import { ArchitectureDiagram } from '@/components/system/ArchitectureDiagram';
 import { domains } from '@/data/domains';
 import { caseStudySections, getProject, projects, statusLabels } from '@/data/projects';
 import { buildMetadata, projectSchema } from '@/lib/seo';
+import { SITE_URL } from '@/data/site';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -36,6 +37,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: project.name,
     description: project.summary,
     path: `/projects/${project.slug}`,
+    image: `${SITE_URL}/projects/${project.slug}/opengraph-image`,
     type: 'article',
     keywords: project.technologies,
   });
