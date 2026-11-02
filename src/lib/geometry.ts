@@ -111,3 +111,11 @@ export function verticalFlowPath(a: Point, b: Point): string {
   const c2 = fixed(b.y - dy * 0.45, 2);
   return `M ${a.x} ${a.y} C ${a.x} ${c1} ${b.x} ${c2} ${b.x} ${b.y}`;
 }
+
+/** Horizontal connector with a soft S-curve, for left-to-right flow diagrams. */
+export function horizontalFlowPath(a: Point, b: Point): string {
+  const dx = b.x - a.x;
+  const c1 = fixed(a.x + dx * 0.45, 2);
+  const c2 = fixed(b.x - dx * 0.45, 2);
+  return `M ${a.x} ${a.y} C ${c1} ${a.y} ${c2} ${b.y} ${b.x} ${b.y}`;
+}

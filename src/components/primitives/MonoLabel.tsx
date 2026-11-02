@@ -6,7 +6,7 @@ interface MonoLabelProps {
   className?: string;
   as?: ElementType;
   size?: 'sm' | 'md';
-  tone?: 'muted' | 'body' | 'accent' | 'primary' | 'faint';
+  tone?: 'muted' | 'body' | 'accent' | 'primary' | 'faint' | 'warn';
 }
 
 /**
@@ -26,6 +26,7 @@ export function MonoLabel({
     accent: 'text-accent',
     primary: 'text-primary',
     faint: 'text-faint',
+    warn: 'text-warn',
   }[tone];
 
   return (

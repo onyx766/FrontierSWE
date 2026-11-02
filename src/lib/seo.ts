@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { SITE_DESCRIPTION, SITE_NAME, SITE_SHORT_NAME, SITE_URL } from '@/data/site';
+import { SITE_NAME, SITE_SHORT_NAME, SITE_URL } from '@/data/site';
 
 interface PageMetaInput {
   title: string;
