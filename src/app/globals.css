@@ -1,0 +1,320 @@
+@import 'tailwindcss';
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DESIGN TOKENS
+   One accent. Everything else is grayscale. See README for the accent budget
+   rule: no more than ~5 accent elements visible in a single viewport.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@theme {
+  /* ── Surfaces ─────────────────────────────────────────────────────────── */
+  --color-void: #06070a;
+  --color-panel: #0a0c10;
+  --color-elevated: #10131a;
+  --color-raised: #141821;
+
+  /* ── Lines ────────────────────────────────────────────────────────────── */
+  --color-line-faint: #161a22;
+  --color-line: #1e242f;
+  --color-line-strong: #2a3242;
+
+  /* ── Text ─────────────────────────────────────────────────────────────── */
+  --color-primary: #e8ebf0;
+  --color-body: #9aa4b2;
+  --color-muted: #5b6676;
+  --color-faint: #3d4653;
+
+  /* ── Signal ───────────────────────────────────────────────────────────── */
+  --color-accent: #3dd68c;
+  --color-accent-bright: #5ef0a8;
+  --color-accent-dim: #1b3a2b;
+  --color-warn: #e8b339;
+  --color-error: #e8564b;
+
+  /* ── Type ─────────────────────────────────────────────────────────────── */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
+    'Segoe UI', sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, 'SFMono-Regular', Menlo,
+    monospace;
+
+  /* ── Motion ───────────────────────────────────────────────────────────── */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-soft: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ── Layout ───────────────────────────────────────────────────────────── */
+  --spacing-grid: 4rem;
+  --container-site: 84rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   BASE
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@layer base {
+  * {
+    border-color: var(--color-line);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-void);
+    color: var(--color-body);
+    font-family: var(--font-sans);
+    font-feature-settings: 'cv11', 'ss01';
+    font-variant-ligatures: contextual;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    color: var(--color-primary);
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background-color: var(--color-accent);
+    color: var(--color-void);
+  }
+
+  /* Visible, consistent focus ring — the topology is keyboard-navigable and
+     this is the primary affordance that makes that usable. */
+  :focus-visible {
+    outline: 1px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  /* Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-line-strong) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--color-void);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-line-strong);
+    border: 3px solid var(--color-void);
+    border-radius: 999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-muted);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   UTILITIES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@utility site-container {
+  margin-inline: auto;
+  width: 100%;
+  max-width: var(--container-site);
+  padding-inline: 1.25rem;
+
+  @media (min-width: 768px) {
+    padding-inline: 2.5rem;
+  }
+
+  @media (min-width: 1280px) {
+    padding-inline: 3.5rem;
+  }
+}
+
+/** The signature mono-uppercase metadata label. */
+@utility label-mono {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--color-muted);
+}
+
+@utility label-mono-sm {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--color-muted);
+}
+
+/** Fine engineering grid. Fixed so it reads as a backdrop, not content. */
+@utility grid-backdrop {
+  background-image:
+    linear-gradient(to right, var(--color-line-faint) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-line-faint) 1px, transparent 1px);
+  background-size: var(--spacing-grid) var(--spacing-grid);
+}
+
+@utility hairline-top {
+  border-top: 1px solid var(--color-line);
+}
+
+/** Display type scale, used for the hero and section openers. */
+@utility text-display {
+  font-size: clamp(3.25rem, 11vw, 9rem);
+  line-height: 0.9;
+  letter-spacing: -0.045em;
+  font-weight: 500;
+}
+
+@utility text-display-sm {
+  font-size: clamp(2rem, 5.5vw, 3.75rem);
+  line-height: 1;
+  letter-spacing: -0.035em;
+  font-weight: 500;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOTION PRIMITIVES
+   Four primitives only: packet, pulse, reveal, trace.
+   Packets use `offset-path` so the compositor animates them off the main
+   thread — no JS runs per frame.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@keyframes packet-travel {
+  from {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  88% {
+    opacity: 1;
+  }
+  to {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+
+@keyframes node-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  70% {
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.1);
+    opacity: 0;
+  }
+}
+
+@keyframes link-trace {
+  from {
+    stroke-dashoffset: var(--trace-length, 600);
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes core-breathe {
+  0%,
+  100% {
+    opacity: 0.32;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes status-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@keyframes caret-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes scan-sweep {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(400%);
+  }
+}
+
+@utility animate-status-blink {
+  animation: status-blink 2.4s var(--ease-in-out-soft) infinite;
+}
+
+@utility animate-core-breathe {
+  animation: core-breathe 4.5s var(--ease-in-out-soft) infinite;
+}
+
+@utility animate-caret {
+  animation: caret-blink 1.1s step-end infinite;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   REDUCED MOTION
+   Everything decorative stops. Information is never animation-dependent:
+   links stay drawn, nodes stay lit, the feed renders as a static list.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  [data-motion='packet'],
+  [data-motion='sweep'] {
+    display: none !important;
+  }
+
+  [data-motion='trace'] {
+    stroke-dashoffset: 0 !important;
+    stroke-dasharray: none !important;
+  }
+}
