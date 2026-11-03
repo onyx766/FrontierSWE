@@ -24,7 +24,7 @@ export function Footer() {
             <span aria-hidden className="text-muted">
               //
             </span>
-            <MonoLabel size="sm">Engineering Network</MonoLabel>
+            <MonoLabel size="sm">Engineering Universe</MonoLabel>
           </div>
           <p className="mt-5 max-w-sm text-sm leading-relaxed text-body">{profile.tagline}</p>
           <div className="mt-6 flex items-center gap-2">

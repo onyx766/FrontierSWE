@@ -1,6 +1,6 @@
 import type { DomainId } from '@/lib/types';
 
-export const SITE_NAME = 'Ryan // Engineering Network';
+export const SITE_NAME = 'Ryan // Engineering Universe';
 export const SITE_SHORT_NAME = 'Ryan';
 export const SITE_DESCRIPTION =
   'Senior AI / Full-Stack Engineer. Production AI systems, scalable backends, SaaS products. 8+ years. Available for projects.';
@@ -16,7 +16,7 @@ export interface NavItem {
 }
 
 export const navItems: NavItem[] = [
-  { label: 'System', href: '/#topology' },
+  { label: 'System', href: '/system' },
   { label: 'Projects', href: '/projects' },
   { label: 'Services', href: '/services' },
   { label: 'Experience', href: '/experience' },
@@ -50,6 +50,7 @@ export const footerColumns: { label: string; items: NavItem[] }[] = [
 /** Routes that should appear in the sitemap with their relative priority. */
 export const staticRoutes: { path: string; priority: number }[] = [
   { path: '/', priority: 1 },
+  { path: '/system', priority: 0.9 },
   { path: '/projects', priority: 0.9 },
   { path: '/services', priority: 0.9 },
   { path: '/start-project', priority: 0.9 },

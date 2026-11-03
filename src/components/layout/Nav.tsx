@@ -42,8 +42,7 @@ export function Nav() {
     return () => document.removeEventListener('keydown', onKey);
   }, [open]);
 
-  const isActive = (href: string) =>
-    href.startsWith('/#') ? pathname === '/' : pathname === href || pathname.startsWith(`${href}/`);
+  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   return (
     <header
@@ -63,7 +62,7 @@ export function Nav() {
             //
           </span>
           <MonoLabel size="sm" className="transition-colors group-hover:text-body">
-            Engineering Network
+            Engineering Universe
           </MonoLabel>
         </Link>
 

@@ -216,16 +216,30 @@ function parallax(depth: number): React.CSSProperties {
   };
 }
 
-function PulseRing({ pulse, radius }: { pulse: number; radius: number }) {
+/**
+ * Motion primitive 2 — pulse. Rendered as a sibling of the node's `<a>`, never
+ * inside it: an animated child inflates the anchor's bounding box, which moves
+ * the link's hit target and focus ring while the pulse plays.
+ *
+ * `transform-box: fill-box` is required. SVG elements default to
+ * `transform-box: view-box`, where `transform-origin: center` means the centre
+ * of the whole viewBox — so the ring would scale from the middle of the diagram
+ * instead of from the node.
+ */
+function PulseRing({ pulse, radius, cx, cy }: { pulse: number; radius: number; cx: number; cy: number }) {
   if (pulse === 0) return null;
   return (
     <circle
       key={pulse}
+      cx={cx}
+      cy={cy}
       r={radius}
       fill="none"
       stroke="var(--color-accent)"
       strokeWidth={1}
+      pointerEvents="none"
       style={{
+        transformBox: 'fill-box',
         transformOrigin: 'center',
         animation: 'node-pulse 1100ms cubic-bezier(0.16, 1, 0.3, 1) forwards',
       }}
@@ -251,6 +265,25 @@ function CoreNode({
 
   return (
     <g style={parallax(node.depth)} opacity={dimmed ? 0.45 : 1} className="transition-opacity duration-300">
+      {/* Decoration first, outside the anchor — see PulseRing. The explicit
+          px transform-origin is correct here because SVG resolves transforms
+          against the viewBox by default. */}
+      <ellipse
+        cx={point.x}
+        cy={point.y}
+        rx={width * 0.95}
+        ry={height * 1.15}
+        fill={`url(#core-glow-${projection})`}
+        className="animate-core-breathe"
+        pointerEvents="none"
+        style={{ transformOrigin: `${point.x}px ${point.y}px` }}
+      />
+      <PulseRing
+        pulse={pulse}
+        radius={NODE_GEOMETRY.coreGap * 0.6}
+        cx={point.x}
+        cy={point.y}
+      />
       <a
         href={domainHref(node.id)}
         onClick={(event) => onNavigate(event, node.id)}
@@ -260,15 +293,6 @@ function CoreNode({
         className="cursor-pointer outline-none"
         aria-label={`${domain.title}: ${domain.tagline}`}
       >
-        <ellipse
-          cx={point.x}
-          cy={point.y}
-          rx={width * 0.95}
-          ry={height * 1.15}
-          fill={`url(#core-glow-${projection})`}
-          className="animate-core-breathe"
-          style={{ transformOrigin: `${point.x}px ${point.y}px` }}
-        />
         <rect
           x={x}
           y={y}
@@ -313,7 +337,6 @@ function CoreNode({
         >
           CORE
         </text>
-        <PulseRing pulse={pulse} radius={NODE_GEOMETRY.coreGap * 0.6} />
       </a>
     </g>
   );
@@ -338,6 +361,12 @@ function DomainNode({
       opacity={dimmed ? 0.42 : 1}
       className="transition-opacity duration-300"
     >
+      <PulseRing
+        pulse={pulse}
+        radius={NODE_GEOMETRY.domainRing}
+        cx={point.x}
+        cy={point.y}
+      />
       <a
         href={domainHref(node.id)}
         onClick={(event) => onNavigate(event, node.id)}
@@ -363,7 +392,6 @@ function DomainNode({
         )}
 
         <g transform={`translate(${point.x} ${point.y})`}>
-          <PulseRing pulse={pulse} radius={NODE_GEOMETRY.domainRing} />
           <circle
             r={NODE_GEOMETRY.domainRing}
             fill="var(--color-void)"

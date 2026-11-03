@@ -1,10 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { GeistMono } from 'geist/font/mono';
 import { GeistSans } from 'geist/font/sans';
-import { AssistantLauncher } from '@/components/layout/AssistantLauncher';
-import { Footer } from '@/components/layout/Footer';
-import { Nav } from '@/components/layout/Nav';
-import { GridBackdrop } from '@/components/primitives/GridBackdrop';
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from '@/data/site';
 import { profile } from '@/data/profile';
 import './globals.css';
@@ -45,7 +41,15 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
+    // suppressHydrationWarning is required and scoped: the inline script below
+    // sets `data-js` on <html> before React hydrates, so the server and client
+    // attributes differ by design. It applies to this element's attributes
+    // only — mismatches inside the page are still reported.
+    <html
+      lang="en"
+      className={`${GeistSans.variable} ${GeistMono.variable}`}
+      suppressHydrationWarning
+    >
       <body className="min-h-dvh antialiased">
         {/*
           Marks that JavaScript is running, synchronously and before any content
@@ -56,17 +60,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script
           dangerouslySetInnerHTML={{ __html: "document.documentElement.dataset.js='1'" }}
         />
-        <a
-          href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:border focus:border-accent focus:bg-void focus:px-4 focus:py-2 focus:font-mono focus:text-xs focus:tracking-[0.18em] focus:text-accent focus:uppercase"
-        >
-          Skip to content
-        </a>
-        <GridBackdrop />
-        <Nav />
-        <main id="main">{children}</main>
-        <Footer />
-        <AssistantLauncher />
+        {children}
       </body>
     </html>
   );

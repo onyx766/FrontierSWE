@@ -53,7 +53,7 @@ export default async function DomainPage({ params }: PageProps) {
       <section className="site-container pt-10 pb-12 md:pt-16">
         <Reveal>
           <nav aria-label="Breadcrumb" className="flex items-center gap-2.5">
-            <Link href="/#topology" className="label-mono transition-colors hover:text-accent">
+            <Link href="/system#topology" className="label-mono transition-colors hover:text-accent">
               Network
             </Link>
             <span aria-hidden className="text-faint">
@@ -205,7 +205,7 @@ export default async function DomainPage({ params }: PageProps) {
       <CTABand
         title={`Need ${domain.title.toLowerCase()} work?`}
         description={domain.tagline}
-        secondary={{ label: 'Back to network', href: '/#topology' }}
+        secondary={{ label: 'Back to network', href: '/system#topology' }}
       />
     </>
   );

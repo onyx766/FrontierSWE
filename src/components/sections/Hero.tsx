@@ -34,7 +34,7 @@ export function Hero() {
 
           <RevealGroup className="mt-10 flex flex-wrap items-center gap-3">
             <RevealItem>
-              <ActionLink href="/#topology" variant="secondary" size="lg">
+              <ActionLink href="/system#topology" variant="secondary" size="lg">
                 Explore system
               </ActionLink>
             </RevealItem>
