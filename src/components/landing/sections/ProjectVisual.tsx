@@ -3,13 +3,13 @@ import { cn } from '@/lib/utils';
 import { agentsArt } from './ProjectArtAgents';
 import { SparkleGlyph, vars, type PanelArt } from './ProjectArtKit';
 import { ragArt } from './ProjectArtRag';
-import { saasArt } from './ProjectArtSaas';
+import { visionArt } from './ProjectArtVision';
 import styles from './Projects.module.css';
 
 const ART: Record<ProjectVisualKind, () => PanelArt> = {
   agents: agentsArt,
   rag: ragArt,
-  saas: saasArt,
+  vision: visionArt,
 };
 
 /** Glints around the panels: [left %, top %, size px, delay s]. */

@@ -52,19 +52,20 @@ describe('holoCopy', () => {
   });
 
   it('does not repeat the title in the heading', () => {
-    const briefing = world.briefing('rag-knowledge-service');
-    expect(holoCopy(briefing, 0).heading).toBeNull();
-    expect(holoCopy(briefing, 1).heading).toBe('What needed solving');
+    expect(holoCopy(world.briefing('engineering-principles'), 0).heading).toBeNull();
+    const briefing = world.briefing('zypact');
+    expect(holoCopy(briefing, 0).title).toBe('Zypact');
+    expect(holoCopy(briefing, 1).heading).toBe('What I did');
   });
 
   it('stays in range when the beat is out of bounds', () => {
-    const briefing = world.briefing('rag-knowledge-service');
+    const briefing = world.briefing('zypact');
     expect(holoCopy(briefing, 99).page).toBe(briefing.beats.length);
     expect(holoCopy(briefing, -3).page).toBe(1);
   });
 
   it('leaves the display to the model on the architecture beat', () => {
-    const briefing = world.briefing('rag-knowledge-service');
+    const briefing = world.briefing('zypact');
     const index = briefing.beats.findIndex((beat) => beat.id === 'architecture');
     expect(holoCopy(briefing, index).lines).toEqual([]);
   });
@@ -75,8 +76,8 @@ describe('stationModelSpec', () => {
     stationModelSpec(world.station(id).content, world.briefing(id));
 
   it('gives a project its declared architecture', () => {
-    expect(model('rag-knowledge-service')).toBe(
-      world.briefing('rag-knowledge-service').beats.find((beat) => beat.architecture)?.architecture,
+    expect(model('zypact')).toBe(
+      world.briefing('zypact').beats.find((beat) => beat.architecture)?.architecture,
     );
   });
 

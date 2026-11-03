@@ -202,7 +202,11 @@ export interface ExperienceEntry {
   id: string;
   role: string;
   organisation: string;
+  /** Exact months, e.g. "Aug 2022 – Sep 2025". */
   period: string;
+  /** Year range for compact labels, e.g. "2022 – 2025". */
+  years: string;
+  location: string;
   summary: string;
   highlights: string[];
   stack: string[];
@@ -212,8 +216,6 @@ export interface ExperienceEntry {
 
 export interface StackItem {
   name: string;
-  /** Depth of experience, 1–5. */
-  depth: 1 | 2 | 3 | 4 | 5;
 }
 
 export interface StackGroup {
@@ -242,6 +244,8 @@ export interface Profile {
     email: string;
     github?: string;
     linkedin?: string;
+    /** Telegram username, without the @. */
+    telegram?: string;
     x?: string;
     resumeUrl?: string;
     /** Placeholder flag so the UI can mark unverified values. */

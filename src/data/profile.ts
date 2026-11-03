@@ -13,7 +13,7 @@ export const profile: Profile = {
   name: 'Ryan',
   role: 'Senior AI / Full-Stack Engineer',
   tagline: 'Building production AI systems, scalable backends and SaaS products.',
-  yearsExperience: '8+',
+  yearsExperience: '6+',
   // [PLACEHOLDER] — set your real location, or delete the usages in /about.
   location: 'Remote',
   // [PLACEHOLDER] — set your real working timezone.
@@ -26,15 +26,13 @@ export const profile: Profile = {
   },
   contact: {
     email: 'ryanma02228@gmail.com',
-    // [PLACEHOLDER] — replace or remove.
-    github: 'https://github.com/example',
-    // [PLACEHOLDER] — replace or remove.
-    linkedin: 'https://www.linkedin.com/in/example',
-    // [PLACEHOLDER] — replace or remove.
+    github: 'https://github.com/onyx766',
+    linkedin: 'https://www.linkedin.com/in/ryanyma/',
+    telegram: 'onyxdev766',
     x: undefined,
-    // [PLACEHOLDER] — drop a PDF in /public and point this at it, or remove.
+    // Drop a PDF in /public and point this at it, or leave undefined.
     resumeUrl: undefined,
-    placeholder: true,
+    placeholder: false,
   },
 };
 
@@ -62,7 +60,7 @@ export const capabilityStrip: string[] = [
 
 /** Short, checkable claims used in the hero and CTA bands. */
 export const proofPoints: { label: string; value: string }[] = [
-  { label: 'Experience', value: '8+ years engineering' },
+  { label: 'Experience', value: '6+ years engineering' },
   { label: 'Focus', value: 'AI systems · backends · SaaS' },
   { label: 'Engagements', value: 'Small fixes to full builds' },
 ];

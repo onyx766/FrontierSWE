@@ -1,3 +1,4 @@
+import { projectAnchor } from '@/data/landing';
 import { domainHref, sectionHref } from '@/data/site';
 import {
   coreStation,
@@ -47,7 +48,7 @@ export function islandAt(point: { x: number; z: number }): IslandContent | null 
 export function stationHref({ subject }: StationContent): string {
   switch (subject.type) {
     case 'project':
-      return sectionHref.projects;
+      return `/#${projectAnchor(subject.slug)}`;
     case 'domain':
       return domainHref(subject.domain);
     case 'welcome':

@@ -1,10 +1,10 @@
 import { domains } from '@/data/domains';
 import { experience, principles, stackGroups } from '@/data/experience';
 import { profile } from '@/data/profile';
-import { getProject, statusLabels } from '@/data/projects';
+import { archiveProjects, type LandingProject } from '@/data/landing';
 import { services, smallTasks } from '@/data/services';
 import type { StationContent } from '@/data/universe';
-import type { ArchitectureSpec, CaseStudyMetric, Project } from '@/lib/types';
+import type { ArchitectureSpec, CaseStudyMetric } from '@/lib/types';
 import { domainHref, sectionHref } from '@/data/site';
 
 /**
@@ -72,66 +72,57 @@ export function firstSentences(text: string, limit = 200): string {
   return out.trim();
 }
 
-function projectBriefing(station: StationContent, project: Project): Briefing {
-  const study = project.caseStudy;
-  const href = sectionHref.projects;
+/** A project's stop: the same words as its section in the homepage archive. */
+function projectBriefing(station: StationContent, project: LandingProject): Briefing {
+  const points = project.engineering ?? project.capabilities ?? [];
+  const beats: Beat[] = [
+    {
+      id: 'overview',
+      kicker: project.category,
+      title: project.tagline,
+      body: project.summary,
+      ...(project.stack.length ? { chips: project.stack } : {}),
+      speech: firstSentences(project.summary),
+    },
+    {
+      id: 'role',
+      kicker: 'My role',
+      title: project.openSource ? 'My contribution, not the product' : 'What I did',
+      body: project.openSource
+        ? `${project.contribution} ${project.name} itself is a community-maintained open-source product.`
+        : project.contribution,
+      speech: project.contribution,
+    },
+  ];
+  if (project.architecture) {
+    beats.push({
+      id: 'architecture',
+      kicker: 'Architecture',
+      title: 'How it fits together',
+      body: project.summary,
+      architecture: project.architecture,
+      speech: 'Here is how the system fits together.',
+    });
+  }
+  if (points.length) {
+    beats.push({
+      id: 'points',
+      kicker: project.engineering ? 'Key engineering' : 'What it does',
+      title: project.engineering ? 'The engineering that mattered' : 'What the product does',
+      bullets: points,
+      speech: firstSentences(points[0] ?? ''),
+    });
+  }
+  // The last beat links out to the live product.
+  const last = beats[beats.length - 1] as Beat;
+  beats[beats.length - 1] = { ...last, link: { label: `Visit ${project.host}`, href: project.href } };
 
   return {
     stationId: station.id,
     title: project.name,
-    eyebrow: `Project · ${statusLabels[project.status]}`,
-    placeholder: project.placeholder,
-    beats: [
-      {
-        id: 'overview',
-        kicker: 'Overview',
-        title: project.name,
-        body: project.intro,
-        chips: project.technologies,
-        speech: project.summary,
-      },
-      {
-        id: 'problem',
-        kicker: 'The problem',
-        title: 'What needed solving',
-        body: study.problem,
-        speech: firstSentences(study.problem),
-      },
-      {
-        id: 'architecture',
-        kicker: 'Architecture',
-        title: 'How it fits together',
-        body: study.architecture,
-        architecture: project.architecture,
-        speech: firstSentences(study.architecture),
-      },
-      {
-        id: 'challenges',
-        kicker: 'Hardest problems',
-        title: 'What actually came up',
-        items: study.challenges.slice(0, 3),
-        speech: firstSentences(study.challenges[0]?.body ?? ''),
-      },
-      {
-        id: 'decisions',
-        kicker: 'Engineering decisions',
-        title: 'The calls that shaped it',
-        items: study.decisions.slice(0, 3).map((entry) => ({
-          title: entry.decision,
-          body: `${entry.rationale} Trade-off: ${entry.tradeoff}`,
-        })),
-        speech: firstSentences(study.decisions[0]?.rationale ?? ''),
-      },
-      {
-        id: 'result',
-        kicker: 'Result',
-        title: 'Where it ended up',
-        body: study.result,
-        metrics: study.metrics,
-        link: { label: 'Back to the projects', href },
-        speech: firstSentences(study.result),
-      },
-    ],
+    eyebrow: project.openSource ? 'Open-source contribution' : 'Project',
+    placeholder: false,
+    beats,
   };
 }
 
@@ -195,8 +186,8 @@ function careerBriefing(station: StationContent): Briefing {
     beats: experience.map((entry, index) => ({
       id: entry.id,
       kicker: entry.period,
-      title: entry.role,
-      body: `${entry.organisation}. ${entry.summary}`,
+      title: `${entry.organisation} · ${entry.role}`,
+      body: `${entry.location}. ${entry.summary}`,
       bullets: entry.highlights.slice(0, 4),
       chips: entry.stack,
       ...(index === experience.length - 1
@@ -307,7 +298,7 @@ export function buildBriefing(station: StationContent): Briefing {
 
   switch (subject.type) {
     case 'project': {
-      const project = getProject(subject.slug);
+      const project = archiveProjects.find((entry) => entry.slug === subject.slug);
       if (!project) throw new Error(`Unknown project "${subject.slug}" in universe data`);
       return projectBriefing(station, project);
     }

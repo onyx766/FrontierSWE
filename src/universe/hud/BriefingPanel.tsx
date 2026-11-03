@@ -102,7 +102,12 @@ function BeatContent({ beat, hideTitle }: { beat: Beat; hideTitle: boolean }) {
       ) : null}
 
       {beat.link ? (
-        <Link href={beat.link.href} className="uh-beat-link">
+        <Link
+          href={beat.link.href}
+          className="uh-beat-link"
+          // Live products open beside the world rather than replacing it.
+          {...(/^https?:/.test(beat.link.href) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+        >
           {beat.link.label}
           <ArrowUpRightIcon className="size-3" />
         </Link>

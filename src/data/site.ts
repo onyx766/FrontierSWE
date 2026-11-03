@@ -3,7 +3,7 @@ import type { DomainId } from '@/lib/types';
 export const SITE_NAME = 'Ryan // Engineering Network';
 export const SITE_SHORT_NAME = 'Ryan';
 export const SITE_DESCRIPTION =
-  'Senior AI / Full-Stack Engineer. Production AI systems, scalable backends, SaaS products. 8+ years. Available for projects.';
+  'Senior AI / Full-Stack Engineer. Production AI systems, scalable backends, SaaS products. 6+ years. Available for projects.';
 
 export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').replace(
   /\/$/,

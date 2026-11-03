@@ -42,7 +42,7 @@ describe('shownStation', () => {
 
 describe('beaconStation', () => {
   const { stations } = world;
-  const anchor = world.station('rag-knowledge-service');
+  const anchor = world.station('xdial');
   const beside = { x: anchor.pad.x + 6, y: anchor.pad.y, z: anchor.pad.z };
   /* Behind the robot, looking towards the pad. */
   const camera = { x: beside.x + 8, y: 4, z: beside.z };

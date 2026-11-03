@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getProject } from '@/data/projects';
+import { archiveProjects, projectAnchor } from '@/data/landing';
 import { islands } from '@/data/universe';
 import { islandCenter } from '../../world/network';
 import { world } from '../../world/world';
@@ -14,12 +14,12 @@ describe('stationGroups', () => {
 });
 
 describe('stationHref', () => {
-  it('sends a project station to the projects section', () => {
+  it('sends a project station to its own section in the archive', () => {
     for (const station of world.stations) {
       const { subject } = station.content;
       if (subject.type !== 'project') continue;
-      expect(getProject(subject.slug)).toBeDefined();
-      expect(stationHref(station.content)).toBe('/#projects');
+      expect(archiveProjects.some((project) => project.slug === subject.slug)).toBe(true);
+      expect(stationHref(station.content)).toBe(`/#${projectAnchor(subject.slug)}`);
     }
   });
 

@@ -78,14 +78,25 @@ export function Experience() {
                   <span className={styles.rail} aria-hidden="true" />
                   <span className={styles.node} aria-hidden="true" />
                   <div className={styles.card}>
-                    <h3 className={cn(styles.role, 'text-[1rem] leading-snug sm:text-[1.0625rem]')}>{entry.role}</h3>
+                    <h3 className={cn(styles.role, 'text-[1.125rem] leading-snug sm:text-[1.25rem]')}>
+                      {entry.company}
+                      <span className={styles.roleTitle}> · {entry.role}</span>
+                    </h3>
                     <p className={styles.period}>
                       {entry.current ? <span className={styles.live} aria-hidden="true" /> : null}
                       {entry.period}
                     </p>
+                    <p className={cn(styles.meta, 'mt-0.5 text-[0.8125rem] text-lp-muted')}>
+                      {entry.dates} · {entry.location}
+                    </p>
                     <p className={cn(styles.summary, 'mt-1.5 text-[0.875rem] leading-relaxed text-lp-body sm:text-[0.9375rem]')}>
                       {entry.summary}
                     </p>
+                    <ul className={cn(styles.highlights, 'mt-2.5 text-[0.84375rem] leading-relaxed text-lp-body')}>
+                      {entry.highlights.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
                     <div className={cn(styles.tech, 'mt-3 grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-2')}>
                       <span className="text-[0.75rem] font-semibold leading-6 text-lp-ink-2">Tech:</span>
                       <ul className="flex flex-wrap gap-1.5">

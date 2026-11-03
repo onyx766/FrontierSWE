@@ -278,17 +278,45 @@
   .period {
     order: 0;
     grid-column: 1;
-    grid-row: 1 / span 3;
+    grid-row: 1 / span 5;
     align-self: start;
     justify-self: start;
     margin: 0;
   }
 
   .role,
+  .meta,
   .summary,
+  .highlights,
   .tech {
     grid-column: 2;
   }
+}
+
+.roleTitle {
+  color: var(--color-lp-ink-2);
+  font-weight: 600;
+}
+
+.highlights {
+  display: grid;
+  gap: 0.375rem;
+}
+
+.highlights li {
+  position: relative;
+  padding-left: 1rem;
+}
+
+.highlights li::before {
+  content: '';
+  position: absolute;
+  left: 0.15rem;
+  top: 0.62em;
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #6d4aff, #9b5cff);
 }
 
 /* ── Highlight: hover an entry or its milestone (fine pointers only) ───────── */

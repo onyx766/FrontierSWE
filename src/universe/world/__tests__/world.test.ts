@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { coreStation, islands, tourOrder } from '@/data/universe';
-import { projects } from '@/data/projects';
+import { archiveProjects as projects } from '@/data/landing';
 import { buildBriefing, firstSentences, stripPlaceholderNotes } from '../beats';
 import { ringHeight, ROAD_WIDTH, WORLD, type RoadEdge } from '../network';
 import { findRoute, nearestOnNetwork } from '../route';
@@ -266,13 +266,11 @@ describe('stations and briefings', () => {
     }
   });
 
-  it('ends every project briefing with a link to the projects section', () => {
+  it('ends every project briefing with a link to the live product', () => {
     for (const project of projects) {
       const briefing = world.briefing(project.slug);
-      expect(briefing.beats[briefing.beats.length - 1]?.link?.href).toBe(
-        '/#projects',
-      );
-      expect(briefing.placeholder).toBe(project.placeholder);
+      expect(briefing.beats[briefing.beats.length - 1]?.link?.href).toBe(project.href);
+      expect(briefing.placeholder).toBe(false);
     }
   });
 

@@ -332,7 +332,7 @@ describe('autopilot', () => {
   });
 
   it('reaches a station from anywhere on any road, over or under a crossing', () => {
-    const targets = ['welcome', 'rag-knowledge-service', 'capability-matrix'];
+    const targets = ['welcome', 'xdial', 'capability-matrix'];
     for (const road of world.network.edges) {
       const start = road.points[road.points.length >> 1] as Vec3;
       for (const target of targets) {
@@ -385,7 +385,7 @@ describe('autopilot', () => {
   it('gives way to the stick', () => {
     const robot = robotAt(world.station(START_STATION_ID).pad);
     const drive = session(robot);
-    drive.driver.follow(world.routeTo(robot, 'agent-orchestration-platform').points);
+    drive.driver.follow(world.routeTo(robot, 'zypact').points);
     for (let frame = 0; frame < 30; frame += 1) drive.step();
 
     drive.hold(0, 1);

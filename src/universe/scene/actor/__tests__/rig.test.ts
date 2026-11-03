@@ -387,7 +387,7 @@ describe('boom against the props', () => {
 });
 
 describe('the station shot', () => {
-  const station = world.station('rag-knowledge-service');
+  const station = world.station('xdial');
 
   function atStation() {
     const frame = makeFrame({ phase: 'explore' });

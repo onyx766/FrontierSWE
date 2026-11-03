@@ -1,7 +1,8 @@
 /*
- * Selected Projects — the night band, its carousel and the glass-panel
- * illustrations. One module for the whole section so a slide's state can
- * reach into its illustration (the panels rotate in when their slide enters).
+ * Projects — the night band and the glass-panel illustrations. The archive's
+ * layout lives in ProjectsArchive.module.css; this module is the band behind
+ * it and the 3D stages inside it. A stage's panels are dealt in when its
+ * Reveal wrapper is revealed, and its animations pause off screen.
  *
  * Every infinite animation's resting style is a sensible still frame: the
  * global reduced-motion rule runs each one once, instantly. Entrance
@@ -12,7 +13,10 @@
 
 .band {
   isolation: isolate;
+  /* clip, not hidden: hidden would make the band a scroll container and
+     stop the archive's sticky visuals from sticking. */
   overflow: hidden;
+  overflow: clip;
   background-color: var(--color-lp-night);
   color: #fff;
 }
@@ -129,496 +133,7 @@
   mask-image: linear-gradient(180deg, transparent, #000 14%, #000 86%, transparent);
 }
 
-/* ── "View All Projects" ───────────────────────────────────────────────── */
-
-.allLink {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  padding-block: 0.35rem;
-  color: #b9a6ff;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  transition: color 250ms;
-}
-
-/* Always drawn; it re-sweeps from the left on hover. */
-.allLink::after {
-  content: '';
-  position: absolute;
-  inset-inline: 0;
-  bottom: -0.1rem;
-  height: 2px;
-  border-radius: 2px;
-  background: linear-gradient(90deg, #7c5cff, #c4b5fd);
-  opacity: 0.75;
-  transform-origin: left center;
-}
-
-.allLinkArrow {
-  display: inline-flex;
-  transition: translate 450ms var(--ease-out-expo);
-}
-
-.allLinkArrow > svg {
-  width: 1.05em;
-  height: 1.05em;
-  animation: nudge 2.8s var(--ease-in-out-soft) infinite;
-}
-
-@keyframes nudge {
-  0%,
-  55%,
-  100% {
-    translate: 0 0;
-  }
-  25% {
-    translate: 4px 0;
-  }
-}
-
-@keyframes sweepIn {
-  from {
-    transform: scaleX(0);
-  }
-  to {
-    transform: scaleX(1);
-  }
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .allLink:hover {
-    color: #ddd3ff;
-  }
-
-  .allLink:hover::after {
-    opacity: 1;
-    animation: sweepIn 650ms var(--ease-out-expo);
-  }
-
-  .allLink:hover .allLinkArrow {
-    translate: 4px 0;
-  }
-
-  .allLink:hover .allLinkArrow > svg {
-    animation-play-state: paused;
-  }
-}
-
-/* ── Carousel layout ───────────────────────────────────────────────────── */
-
-/*
- * The controls come first in the DOM (rotation control first, as the ARIA
- * pattern asks) and are placed visually by grid area. Below md they share a
- * row under the card; from md the arrows sit on the card's edges, which an
- * absolutely positioned grid item can do by naming the card's area.
- */
-.region {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-areas:
-    'card card'
-    'picker nav';
-  align-items: center;
-  gap: 1.25rem 1rem;
-}
-
-.picker {
-  grid-area: picker;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  min-width: 0;
-}
-
-.navArea {
-  grid-area: nav;
-  display: flex;
-  gap: 0.5rem;
-}
-
-@media (min-width: 768px) {
-  .region {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-areas:
-      'card'
-      'picker';
-    row-gap: 1.4rem;
-  }
-
-  .picker {
-    padding-inline: 0.5rem;
-  }
-
-  .navArea {
-    display: contents;
-  }
-
-  /* Specific enough to beat the buttons' base `position: relative` below. */
-  .region .navBtn {
-    position: absolute;
-    z-index: 3;
-    grid-area: card;
-    top: 50%;
-  }
-
-  .region .navPrev {
-    left: 0;
-    translate: -50% -50%;
-  }
-
-  .region .navNext {
-    right: 0;
-    translate: 50% -50%;
-  }
-}
-
-/* ── Card ──────────────────────────────────────────────────────────────── */
-
-.card {
-  grid-area: card;
-  position: relative;
-  isolation: isolate;
-  min-width: 0;
-  overflow: hidden;
-  padding: 1px;
-  border-radius: 1.75rem;
-  background: rgb(255 255 255 / 0.1);
-  box-shadow:
-    0 50px 90px -40px rgb(4 2 18 / 0.9),
-    0 0 90px -36px rgb(109 74 255 / 0.6);
-}
-
-/* An arc of light running slowly round the border; brighter on hover. */
-.beam {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  z-index: -1;
-  width: 200%;
-  aspect-ratio: 1;
-  translate: -50% -50%;
-  background: conic-gradient(
-    from 0deg,
-    transparent 0turn 0.6turn,
-    rgb(155 92 255 / 0.9) 0.8turn,
-    rgb(232 224 255) 0.86turn,
-    transparent 0.92turn
-  );
-  opacity: 0.5;
-  animation: spin 11s linear infinite;
-  transition: opacity 600ms;
-}
-
-@keyframes spin {
-  to {
-    rotate: 360deg;
-  }
-}
-
-.surface {
-  position: relative;
-  border-radius: calc(1.75rem - 1px);
-  background:
-    radial-gradient(85% 80% at 80% 42%, rgb(109 74 255 / 0.2), transparent 62%),
-    radial-gradient(60% 55% at 0% 0%, rgb(255 255 255 / 0.055), transparent 70%),
-    linear-gradient(155deg, #1f1b4b 0%, #171439 48%, #110f2b 100%);
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.07),
-    inset 0 0 70px rgb(124 77 255 / 0.07);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .card:hover .beam {
-    opacity: 1;
-  }
-}
-
-/* ── Slides ────────────────────────────────────────────────────────────── */
-
-/* Every slide shares one grid cell, so the card is as tall as the tallest
-   slide and never changes height between them. */
-.track {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  touch-action: pan-y;
-}
-
-.slide {
-  grid-area: 1 / 1;
-  display: grid;
-  align-content: start;
-  min-width: 0;
-}
-
-@media (min-width: 768px) {
-  .slide {
-    grid-template-columns: minmax(0, 19rem) minmax(0, 1fr);
-    align-content: stretch;
-    align-items: center;
-  }
-}
-
-@media (min-width: 1280px) {
-  .slide {
-    grid-template-columns: minmax(0, 21rem) minmax(0, 1fr);
-  }
-}
-
-.slide[data-state='idle'] {
-  visibility: hidden;
-}
-
-.slide[data-state='current'],
-.slide[data-state='entering'] {
-  z-index: 2;
-}
-
-.slide[data-state='leaving'] {
-  z-index: 1;
-  animation: hideAfter 620ms both;
-}
-
-@keyframes hideAfter {
-  to {
-    visibility: hidden;
-  }
-}
-
-/* Hidden slides keep their markup but stop animating. */
-.slide[data-state='idle'] *,
-.slide[data-state='leaving'] .visual * {
-  animation-play-state: paused;
-}
-
-/* ── Slide text ────────────────────────────────────────────────────────── */
-
-.text {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  min-width: 0;
-  padding: 1.75rem 1.5rem 0.25rem;
-}
-
-@media (min-width: 768px) {
-  .text {
-    padding: 2.5rem 0.25rem 2.5rem 3rem;
-  }
-}
-
-@media (min-width: 1280px) {
-  .text {
-    padding-left: 3.25rem;
-  }
-}
-
-.counter {
-  color: rgb(255 255 255 / 0.55);
-  font-size: 0.8125rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  font-variant-numeric: tabular-nums;
-}
-
-.counterNow {
-  color: #b9a6ff;
-}
-
-.tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  margin-top: 1rem;
-}
-
-.tag {
-  display: inline-flex;
-  align-items: center;
-  height: 1.5rem;
-  padding-inline: 0.65rem;
-  border: 1px solid rgb(255 255 255 / 0.12);
-  border-radius: 999px;
-  background: rgb(255 255 255 / 0.08);
-  color: rgb(255 255 255 / 0.86);
-  font-size: 0.625rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.title {
-  margin-top: 1rem;
-  color: #fff;
-  font-size: clamp(1.75rem, 1rem + 1.4vw, 2.25rem);
-  font-weight: 800;
-  line-height: 1.04;
-  letter-spacing: -0.035em;
-  text-wrap: balance;
-}
-
-.desc {
-  max-width: 30ch;
-  margin-top: 0.85rem;
-  color: rgb(255 255 255 / 0.72);
-  font-size: 0.95rem;
-  line-height: 1.6;
-}
-
-.stack {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.375rem;
-  margin-top: 1.1rem;
-}
-
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  height: 1.625rem;
-  padding-inline: 0.6rem;
-  border: 1px solid rgb(255 255 255 / 0.1);
-  border-radius: 0.5rem;
-  background: rgb(255 255 255 / 0.04);
-  color: rgb(255 255 255 / 0.76);
-  font-size: 0.75rem;
-  white-space: nowrap;
-}
-
-.chip::before {
-  content: '';
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #a58bff;
-  box-shadow: 0 0 6px rgb(165 139 255 / 0.9);
-}
-
-.cta {
-  margin-top: 1.45rem;
-}
-
-/* Text crossfades in from the side the visitor is travelling towards. */
-.slide[data-state='entering'] .text > * {
-  animation: textIn 760ms var(--ease-out-expo) backwards;
-}
-
-.slide[data-state='entering'] .text > :nth-child(2) {
-  animation-delay: 45ms;
-}
-
-.slide[data-state='entering'] .text > :nth-child(3) {
-  animation-delay: 90ms;
-}
-
-.slide[data-state='entering'] .text > :nth-child(4) {
-  animation-delay: 135ms;
-}
-
-.slide[data-state='entering'] .text > :nth-child(5) {
-  animation-delay: 180ms;
-}
-
-.slide[data-state='entering'] .text > :nth-child(n + 6) {
-  animation-delay: 225ms;
-}
-
-.track[data-dir='prev'] .slide[data-state='entering'] .text > * {
-  animation-name: textInPrev;
-}
-
-.slide[data-state='leaving'] .text {
-  animation: textOut 380ms var(--ease-in-out-soft) both;
-}
-
-.track[data-dir='prev'] .slide[data-state='leaving'] .text {
-  animation-name: textOutPrev;
-}
-
-@keyframes textIn {
-  from {
-    opacity: 0;
-    translate: 28px 0;
-    filter: blur(6px);
-  }
-}
-
-@keyframes textInPrev {
-  from {
-    opacity: 0;
-    translate: -28px 0;
-    filter: blur(6px);
-  }
-}
-
-@keyframes textOut {
-  to {
-    opacity: 0;
-    translate: -18px 0;
-  }
-}
-
-@keyframes textOutPrev {
-  to {
-    opacity: 0;
-    translate: 18px 0;
-  }
-}
-
-/* ── Slide visual: the 3D stage ────────────────────────────────────────── */
-
-.visualSlot {
-  position: relative;
-  min-width: 0;
-  padding: 0.25rem 0.75rem 0;
-}
-
-/* Stacked, the stage's empty floor would only pad the card's foot. */
-@media (max-width: 767.98px) {
-  .visualSlot .visual {
-    margin-bottom: -4%;
-  }
-}
-
-@media (min-width: 768px) {
-  .visualSlot {
-    padding: 1.25rem 1.5rem 1.25rem 0;
-  }
-
-  /* A little larger than its column, so the panels fill the card's right
-     half as in the reference; the card's own edge does the clipping. */
-  .visualSlot .visual {
-    width: 107%;
-    margin-left: -8%;
-  }
-}
-
-.slide[data-state='leaving'] .visualSlot {
-  animation: visualOut 560ms var(--ease-in-out-soft) both;
-}
-
-.track[data-dir='prev'] .slide[data-state='leaving'] .visualSlot {
-  animation-name: visualOutPrev;
-}
-
-@keyframes visualOut {
-  to {
-    opacity: 0;
-    transform: perspective(1200px) translateX(-8%) rotateY(-30deg) scale(0.92);
-  }
-}
-
-@keyframes visualOutPrev {
-  to {
-    opacity: 0;
-    transform: perspective(1200px) translateX(8%) rotateY(30deg) scale(0.92);
-  }
-}
+/* ── The 3D stage ──────────────────────────────────────────────────────── */
 
 .visual {
   position: relative;
@@ -646,7 +161,7 @@
 }
 
 /* The resting pose, plus whatever tilt the pointer adds (--tilt-x/--tilt-y
-   are written on the card by the carousel). */
+   are written on the stage's wrapper by TiltStage). */
 .scene {
   position: absolute;
   inset: 0;
@@ -655,7 +170,7 @@
   transition: transform 1100ms var(--ease-out-expo);
 }
 
-.card[data-tilting] .scene {
+[data-tilting] .scene {
   transition-duration: 320ms;
 }
 
@@ -790,20 +305,16 @@
 
 /* Panels are dealt in, one after another, swinging round from the side.
    Ease-out-cubic rather than expo, so the swing is long enough to read. */
-.slide[data-state='entering'] .panelWrap {
+[data-revealed] .panelWrap {
   animation: panelIn 1200ms cubic-bezier(0.33, 1, 0.68, 1) backwards;
 }
 
-.slide[data-state='entering'] .posMain {
+[data-revealed] .posMain {
   animation-delay: 90ms;
 }
 
-.slide[data-state='entering'] .posSide {
+[data-revealed] .posSide {
   animation-delay: 190ms;
-}
-
-.track[data-dir='prev'] .slide[data-state='entering'] .panelWrap {
-  animation-name: panelInPrev;
 }
 
 @keyframes panelIn {
@@ -811,19 +322,6 @@
     opacity: 0;
     rotate: y 38deg;
     translate: 24% 0 -140px;
-  }
-  to {
-    opacity: 1;
-    rotate: y 0deg;
-    translate: 0 0 0;
-  }
-}
-
-@keyframes panelInPrev {
-  from {
-    opacity: 0;
-    rotate: y -38deg;
-    translate: -24% 0 -140px;
   }
   to {
     opacity: 1;
@@ -859,8 +357,8 @@
   opacity: 0.75;
 }
 
-.slide[data-state='entering'] .floor,
-.slide[data-state='entering'] .streak {
+[data-revealed] .floor,
+[data-revealed] .streak {
   animation: fadeIn 1s var(--ease-out-expo) 120ms backwards;
 }
 
@@ -1029,6 +527,62 @@
   }
 }
 
+/* Vision art: a camera scan line travelling down the table. */
+.scanDown {
+  animation: scanDown 3.4s linear infinite;
+}
+
+@keyframes scanDown {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  10%,
+  86% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(126px);
+    opacity: 0;
+  }
+}
+
+/* Vision art: the predicted shot line drawing itself on repeat. */
+.trajectory {
+  stroke-dasharray: 3 3;
+  animation: trajectory 1.6s linear infinite;
+}
+
+@keyframes trajectory {
+  to {
+    stroke-dashoffset: -12;
+  }
+}
+
+/* Vision art: tracking boxes locking onto each ball in turn. */
+.lock {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: lock 3.4s var(--ease-out-expo) infinite;
+  animation-delay: calc(var(--i, 0) * 0.22s - 3.4s);
+}
+
+@keyframes lock {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  8% {
+    opacity: 1;
+    transform: scale(1.35);
+  }
+  22% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 .hit {
   animation: hit 3.8s var(--ease-out-expo) var(--delay, 0s) infinite;
 }
@@ -1083,305 +637,9 @@
   }
 }
 
-/* Chart line: drawn in whenever its slide enters. */
-.draw {
-  stroke-dasharray: 100;
-  stroke-dashoffset: 0;
-}
-
-.slide[data-state='entering'] .draw {
-  animation: draw 1.8s var(--ease-out-expo) 350ms backwards;
-}
-
-@keyframes draw {
-  from {
-    stroke-dashoffset: 100;
-  }
-}
-
-.slide[data-state='entering'] .areaIn {
-  animation: fadeIn 1.4s var(--ease-out-expo) 700ms backwards;
-}
-
-.toggleKnob {
-  animation: toggleKnob 5s var(--ease-in-out-soft) infinite;
-}
-
-.toggleOn {
-  animation: toggleOn 5s var(--ease-in-out-soft) infinite;
-}
-
-@keyframes toggleKnob {
-  0%,
-  40%,
-  100% {
-    transform: translateX(0);
-  }
-  50%,
-  90% {
-    transform: translateX(-7px);
-  }
-}
-
-@keyframes toggleOn {
-  0%,
-  40%,
-  100% {
-    opacity: 1;
-  }
-  50%,
-  90% {
-    opacity: 0;
-  }
-}
-
 /* Off screen or in a hidden tab, the decoration stops. */
-.region[data-offscreen] .visual,
-.region[data-offscreen] .visual *,
-.region[data-offscreen] .beam {
+[data-offscreen] .visual,
+[data-offscreen] .visual * {
   animation-play-state: paused;
 }
 
-/* ── Picker: autoplay progress and slide choice ────────────────────────── */
-
-.tabs {
-  display: grid;
-  flex: 1;
-  grid-auto-columns: minmax(0, 1fr);
-  grid-auto-flow: column;
-  gap: 0.6rem;
-  min-width: 0;
-}
-
-.tab {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  min-width: 0;
-  padding: 0.7rem 0 0.45rem;
-  border-radius: 0.375rem;
-  color: rgb(255 255 255 / 0.6);
-  text-align: left;
-  cursor: pointer;
-  transition: color 250ms;
-}
-
-.tabTrack {
-  position: relative;
-  height: 3px;
-  overflow: hidden;
-  border-radius: 999px;
-  background: rgb(255 255 255 / 0.14);
-  transition: background-color 250ms;
-}
-
-.tabFill {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(90deg, #6d4aff, #b79dff 70%, #f0abfc);
-  box-shadow: 0 0 10px rgb(155 120 255 / 0.8);
-  transform: scaleX(0);
-  transform-origin: left center;
-  transition: transform 600ms var(--ease-out-expo);
-}
-
-.tab[aria-current='true'] {
-  color: #fff;
-}
-
-/* Still marks the current slide while its fill is paused near zero. */
-.tab[aria-current='true'] .tabTrack {
-  background-color: rgb(196 181 253 / 0.3);
-}
-
-.tab[aria-current='true'] .tabFill {
-  transform: scaleX(1);
-}
-
-/* Autoplay: the active bar fills over one interval; its animationend is
-   what advances the slide, so pausing the bar pauses the carousel.
-   Longhands, not the shorthand: the shorthand would reset play-state to
-   running and, being more specific, beat the pause rules below. */
-.region[data-autoplay] .tab[aria-current='true'] .tabFill {
-  animation-name: progress;
-  animation-duration: var(--interval, 7000ms);
-  animation-timing-function: linear;
-  animation-fill-mode: both;
-}
-
-.region[data-paused] .tabFill,
-.region:focus-within .tabFill {
-  animation-play-state: paused;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .region:hover .tabFill {
-    animation-play-state: paused;
-  }
-
-  .tab:hover {
-    color: rgb(255 255 255 / 0.92);
-  }
-
-  .tab:hover .tabTrack {
-    background-color: rgb(255 255 255 / 0.26);
-  }
-}
-
-@keyframes progress {
-  from {
-    transform: scaleX(0);
-  }
-  to {
-    transform: scaleX(1);
-  }
-}
-
-.tabLabel {
-  display: flex;
-  align-items: baseline;
-  gap: 0.55rem;
-  min-width: 0;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  line-height: 1.2;
-}
-
-.tabNum {
-  flex: none;
-  color: rgb(255 255 255 / 0.5);
-  font-family: var(--font-geist-mono), ui-monospace, monospace;
-  font-size: 0.72rem;
-  transition: color 250ms;
-}
-
-.tab[aria-current='true'] .tabNum {
-  color: #b9a6ff;
-}
-
-.tabName {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* ── Buttons ───────────────────────────────────────────────────────────── */
-
-.pauseBtn,
-.navBtn {
-  position: relative;
-  display: inline-flex;
-  flex: none;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  color: #fff;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.pauseBtn {
-  width: 2.25rem;
-  height: 2.25rem;
-  border: 1px solid rgb(255 255 255 / 0.16);
-  background: rgb(255 255 255 / 0.05);
-  color: rgb(255 255 255 / 0.85);
-  transition:
-    background-color 250ms,
-    border-color 250ms,
-    color 250ms;
-}
-
-.navBtn {
-  width: 2.875rem;
-  height: 2.875rem;
-  border: 1px solid rgb(255 255 255 / 0.2);
-  background: rgb(22 19 52 / 0.82);
-  box-shadow:
-    0 12px 26px -12px rgb(0 0 0 / 0.8),
-    inset 0 1px 0 rgb(255 255 255 / 0.08);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-  transition:
-    transform 450ms var(--ease-out-expo),
-    border-color 250ms,
-    background-color 250ms,
-    box-shadow 450ms var(--ease-out-expo);
-}
-
-/* A ring of light that spins round the button while it is hovered. */
-.navBtn::before {
-  content: '';
-  position: absolute;
-  inset: -1px;
-  padding: 1.5px;
-  border-radius: inherit;
-  background: conic-gradient(
-    from 0deg,
-    transparent 0turn 0.5turn,
-    #9b5cff 0.78turn,
-    #efeaff 0.88turn,
-    transparent 0.96turn
-  );
-  opacity: 0;
-  -webkit-mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  mask-composite: exclude;
-  transition: opacity 300ms;
-  pointer-events: none;
-}
-
-.navIcon {
-  width: 1.1rem;
-  height: 1.1rem;
-  transition: translate 400ms var(--ease-out-expo);
-}
-
-.navBtn:active {
-  transform: scale(0.94);
-  transition-duration: 80ms;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .pauseBtn:hover {
-    border-color: rgb(196 181 253 / 0.5);
-    background: rgb(109 74 255 / 0.22);
-    color: #fff;
-  }
-
-  .navBtn:hover {
-    transform: scale(1.07);
-    border-color: rgb(196 181 253 / 0.45);
-    background: rgb(44 32 110 / 0.9);
-    box-shadow:
-      0 16px 32px -12px rgb(109 74 255 / 0.85),
-      inset 0 1px 0 rgb(255 255 255 / 0.14);
-  }
-
-  .navBtn:hover::before {
-    opacity: 1;
-    animation: spin 1.8s linear infinite;
-  }
-
-  .navPrev:hover .navIcon {
-    translate: -2px 0;
-  }
-
-  .navNext:hover .navIcon {
-    translate: 2px 0;
-  }
-}
-
-/* Under reduced motion staggers would only hold content back: drop them. */
-@media (prefers-reduced-motion: reduce) {
-  .slide,
-  .slide * {
-    animation-delay: 0s !important;
-  }
-}

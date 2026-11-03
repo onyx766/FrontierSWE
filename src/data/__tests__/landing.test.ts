@@ -7,10 +7,11 @@ import {
   finalCta,
   footer,
   hero,
-  landingProjects,
+  archiveProjects,
+  disciplineCounts,
   landingServices,
+  projectAnchor,
   navSections,
-  projectsIntro,
   quickTasks,
   servicesIntro,
   skillTabs,
@@ -18,7 +19,6 @@ import {
   about,
   startProjectHref,
 } from '@/data/landing';
-import { getProject } from '@/data/projects';
 import { WORLD_AT_PARAM, WORLD_PATH } from '@/data/universe';
 
 /**
@@ -57,11 +57,32 @@ function checkHref(href: string): string | null {
 }
 
 describe('landing data', () => {
-  it('resolves every featured project slide to a real project', () => {
-    expect(landingProjects).toHaveLength(3);
-    for (const project of landingProjects) {
-      expect(getProject(project.slug)).toBeDefined();
-      expect(project.tags.length).toBeGreaterThan(0);
+  it('gives every archive project a unique anchor, a role, detail and a live https link', () => {
+    const anchors = archiveProjects.map((project) => projectAnchor(project.slug));
+    expect(new Set(anchors).size).toBe(archiveProjects.length);
+    for (const project of archiveProjects) {
+      expect(project.contribution.length).toBeGreaterThan(0);
+      expect(project.disciplines.length).toBeGreaterThan(0);
+      expect(project.href.startsWith('https://')).toBe(true);
+      expect(project.href).toContain(project.host);
+      // Open-source products are described as the platform, never as Ryan's own engineering.
+      if (project.openSource) expect(project.engineering).toBeUndefined();
+    }
+  });
+
+  it('never puts two projects with the same layout next to each other, except grouped pairs', () => {
+    archiveProjects.forEach((project, i) => {
+      const prev = archiveProjects[i - 1];
+      if (!prev || project.layout === 'pair' || project.layout === 'open-source') return;
+      expect(project.layout).not.toBe(prev.layout);
+    });
+  });
+
+  it('counts disciplines from the projects themselves', () => {
+    for (const discipline of disciplineCounts) {
+      expect(discipline.count).toBe(
+        archiveProjects.filter((project) => project.disciplines.includes(discipline.id)).length,
+      );
     }
   });
 
@@ -76,7 +97,6 @@ describe('landing data', () => {
       hero.primaryCta.href,
       hero.secondaryCta.href,
       hero.worldCta.href,
-      projectsIntro.allProjects.href,
       experienceIntro.more.href,
       architectureIntro.more.href,
       servicesIntro.more.href,
@@ -84,7 +104,7 @@ describe('landing data', () => {
       about.secondaryCta.href,
       finalCta.cta.href,
       finalCta.secondary.href,
-      ...landingProjects.map((project) => project.href),
+      ...archiveProjects.map((project) => project.href),
       ...landingServices.map((service) => service.href),
       ...footer.columns.flatMap((column) => column.items.map((item) => item.href)),
       ...socialLinks.map((link) => link.href),

@@ -1,10 +1,10 @@
 import type { IconName } from '@/components/landing/primitives/Icon';
 import type { TechIconName } from '@/components/landing/primitives/techIconNames';
-import { principles } from '@/data/experience';
+import { experience, principles } from '@/data/experience';
 import { profile } from '@/data/profile';
-import { getProject } from '@/data/projects';
-import { engagementModels, serviceFaqs, smallTasks } from '@/data/services';
-import { projectStationId, worldHref } from '@/data/universe';
+import { engagementModels, smallTasks } from '@/data/services';
+import { worldHref } from '@/data/universe';
+import type { ArchitectureSpec } from '@/lib/types';
 
 /**
  * ─────────────────────────────────────────────────────────────────────────────
@@ -50,6 +50,14 @@ const maybeSocials: (SocialLink | null)[] = [
     : null,
   profile.contact.linkedin
     ? { label: 'LinkedIn', href: profile.contact.linkedin, icon: 'linkedin', external: true }
+    : null,
+  profile.contact.telegram
+    ? {
+        label: 'Telegram',
+        href: `https://t.me/${profile.contact.telegram}`,
+        icon: 'telegram',
+        external: true,
+      }
     : null,
   { label: 'Email', href: `mailto:${profile.contact.email}`, icon: 'mail', external: false },
 ];
@@ -253,68 +261,340 @@ export const skillTabs: SkillTab[] = [
 
 /* ───────────────────────────────── Projects ─────────────────────────────── */
 
-export type ProjectVisualKind = 'agents' | 'rag' | 'saas';
+/**
+ * The Engineering Work Archive. Every statement here is either from the
+ * project's own live site, from its repository, or from what Ryan has said
+ * about his role. Nothing is estimated: no metrics, no invented duties.
+ *
+ *   `contribution` — Ryan's own part. Keep it to what he actually did.
+ *   `engineering`  — verified from the code (Zypact, BPS) …
+ *   `capabilities` — … or, where that isn't available, what the product does,
+ *                    labelled as such on the page.
+ */
+
+export type ProjectVisualKind = 'agents' | 'rag' | 'vision';
+
+/** The disciplines the archive shows, counted from the projects themselves. */
+export const projectDisciplines = [
+  { id: 'ai', label: 'AI / LLM', icon: 'sparkles' },
+  { id: 'vision', label: 'Computer Vision', icon: 'target' },
+  { id: 'saas', label: 'SaaS', icon: 'layers' },
+  { id: 'backend', label: 'Backend', icon: 'server' },
+  { id: 'data', label: 'Data / ML', icon: 'database' },
+  { id: 'fullstack', label: 'Full-Stack', icon: 'monitor' },
+  { id: 'php', label: 'PHP', icon: 'code' },
+] as const satisfies readonly { id: string; label: string; icon: IconName }[];
+
+export type ProjectDiscipline = (typeof projectDisciplines)[number]['id'];
+
+/** How a project is laid out in the archive; consecutive projects never share one. */
+export type ProjectLayout = 'split' | 'split-reverse' | 'wide' | 'pair' | 'open-source';
 
 export interface LandingProject {
   slug: string;
   name: string;
-  description: string;
-  tags: string[];
+  /** Short category label shown beside the number, e.g. "AI · SaaS". */
+  category: string;
+  disciplines: ProjectDiscipline[];
+  tagline: string;
+  /** What the product does. */
+  summary: string;
+  /** What Ryan did on it. */
+  contribution: string;
+  /** Engineering verified from the codebase. */
+  engineering?: string[];
+  /** What the product does, for projects without verified engineering notes. */
+  capabilities?: string[];
   stack: string[];
-  visual: ProjectVisualKind;
   href: string;
+  host: string;
+  layout: ProjectLayout;
+  /** A screenshot of the live product, under /public/projects. */
+  screenshot?: { src: string; alt: string };
+  /** An animated illustration (ProjectVisual). */
+  visual?: ProjectVisualKind;
+  /** Set for open-source products Ryan worked with but did not create. */
+  openSource?: { platform: string };
+  /** The system diagram the 3D world's hologram draws, where the architecture is known. */
+  architecture?: ArchitectureSpec;
 }
 
-const projectSlides: { slug: string; description: string; tags: string[]; visual: ProjectVisualKind }[] = [
+export const archiveProjects: LandingProject[] = [
   {
-    slug: 'agent-orchestration-platform',
-    description: 'Multi-agent runtime with typed tool calling, streaming and execution traces.',
-    tags: ['AI Agents', 'Backend', 'SaaS'],
+    slug: 'zypact',
+    name: 'Zypact',
+    category: 'AI · SaaS',
+    disciplines: ['ai', 'saas', 'backend'],
+    tagline: 'Turn AI answers into evidence.',
+    summary:
+      'An evidence-backed diagnostic for B2B SaaS teams. It records how Perplexity answers a buyer question that matters commercially, preserves exactly what came back, then asks the same question again after one registered change. The result is an Outcome Card: increase observed, decrease observed, no clear change, or inconclusive.',
+    contribution: 'I built Zypact: the web service, its scan and evidence pipeline, and the worker infrastructure behind it.',
+    engineering: [
+      'Perplexity Sonar integration with explicit protocol approval, admission control and a reservation before every paid call',
+      'Evidence stored as the exact provider request and response, with hashes and immutability enforced by the database',
+      'A PostgreSQL-backed worker claim queue with leases, fencing, idempotency and recovery',
+      'One canonical evidence snapshot behind the dashboard, reports, exports and Outcome Card',
+    ],
+    stack: ['Next.js', 'React', 'TypeScript', 'Supabase / PostgreSQL', 'Perplexity Sonar', 'Fly.io workers'],
+    href: 'https://zypact.com',
+    host: 'zypact.com',
+    layout: 'split',
+    screenshot: { src: '/projects/zypact.jpg', alt: 'The Zypact homepage' },
+    visual: 'rag',
+    architecture: {
+      layers: [
+        { label: 'Client', nodes: [{ id: 'web', label: 'Web App', detail: 'Next.js' }] },
+        {
+          label: 'Service',
+          nodes: [
+            { id: 'api', label: 'Scan API', detail: 'Next.js' },
+            { id: 'admit', label: 'Admission', detail: 'approval · reservation', tone: 'accent' },
+          ],
+        },
+        {
+          label: 'Workers',
+          nodes: [
+            { id: 'queue', label: 'Claim Queue', detail: 'Postgres leases' },
+            { id: 'worker', label: 'Worker', detail: 'Fly.io', tone: 'accent' },
+          ],
+        },
+        {
+          label: 'Evidence',
+          nodes: [
+            { id: 'sonar', label: 'Perplexity Sonar', detail: 'provider' },
+            { id: 'store', label: 'Evidence Store', detail: 'hashed · immutable' },
+            { id: 'snapshot', label: 'Snapshot', detail: 'Outcome Card', tone: 'accent' },
+          ],
+        },
+      ],
+      edges: [
+        { from: 'web', to: 'api', label: 'scan' },
+        { from: 'api', to: 'admit' },
+        { from: 'admit', to: 'queue', label: 'enqueue' },
+        { from: 'queue', to: 'worker', label: 'claim' },
+        { from: 'worker', to: 'sonar', label: 'ask' },
+        { from: 'worker', to: 'store', label: 'record' },
+        { from: 'store', to: 'snapshot' },
+        { from: 'snapshot', to: 'web', label: 'report' },
+      ],
+      // Timings only pace the animation; none are shown or claimed.
+      paths: [
+        {
+          label: 'Scan',
+          steps: ['web', 'api', 'admit', 'queue', 'worker', 'store', 'snapshot'],
+          latencies: [0, 0, 0, 0, 0, 0, 0],
+        },
+      ],
+    },
+  },
+  {
+    slug: 'bps-pro',
+    name: 'BPS Pro-Score',
+    category: 'Computer Vision',
+    disciplines: ['vision'],
+    tagline: 'One camera. Every pool table. Zero equipment changes.',
+    summary:
+      'A pool scoring system. Point a fixed overhead camera at the table, or hand it a recorded clip, and it finds the balls, tracks them, works out which is which, applies the league rules and draws the scoreboard. No changes to the table are needed.',
+    contribution: 'I built the vision pipeline in Python and OpenCV.',
+    engineering: [
+      'Detection that models the felt, a single colour, and keeps whatever is not felt: steadier than describing fifteen ball colours, and no model weights to ship',
+      'Ball tracking and identity across frames, feeding a rules engine that scores the game',
+      'A calibration flow that measures the table and fits the six pockets to each camera or clip',
+      'Runs offline on Raspberry Pi, Windows and macOS, with machine licences and a build manifest signed with Ed25519',
+    ],
+    stack: ['Python', 'OpenCV', 'NumPy', 'Raspberry Pi', 'Ed25519 licensing'],
+    href: 'https://bpspro.co',
+    host: 'bpspro.co',
+    layout: 'split-reverse',
+    screenshot: { src: '/projects/bps-pro.jpg', alt: 'The BPS Pro-Score homepage' },
+    visual: 'vision',
+    architecture: {
+      layers: [
+        { label: 'Input', nodes: [{ id: 'camera', label: 'Overhead Camera', detail: 'or a recorded clip' }] },
+        {
+          label: 'Vision',
+          nodes: [
+            { id: 'felt', label: 'Felt Model', detail: 'OpenCV' },
+            { id: 'tracker', label: 'Tracker', detail: 'ball identity', tone: 'accent' },
+          ],
+        },
+        {
+          label: 'Logic',
+          nodes: [
+            { id: 'calibration', label: 'Calibration', detail: 'table · pockets' },
+            { id: 'rules', label: 'Rules Engine', detail: 'league rules', tone: 'accent' },
+          ],
+        },
+        {
+          label: 'Output',
+          nodes: [
+            { id: 'scoreboard', label: 'Scoreboard', detail: 'live score' },
+            { id: 'device', label: 'Offline Device', detail: 'Raspberry Pi · Ed25519' },
+          ],
+        },
+      ],
+      edges: [
+        { from: 'camera', to: 'felt', label: 'frames' },
+        { from: 'calibration', to: 'felt', label: 'table geometry' },
+        { from: 'felt', to: 'tracker', label: 'balls' },
+        { from: 'tracker', to: 'rules', label: 'events' },
+        { from: 'rules', to: 'scoreboard' },
+        { from: 'device', to: 'camera' },
+      ],
+      paths: [
+        {
+          label: 'Frame',
+          steps: ['camera', 'felt', 'tracker', 'rules', 'scoreboard'],
+          latencies: [0, 0, 0, 0, 0],
+        },
+      ],
+    },
+  },
+  {
+    slug: 'xdial',
+    name: 'xDial AI',
+    category: 'AI Agent · SaaS',
+    disciplines: ['ai', 'saas'],
+    tagline: "Skip the phone tree. We'll do it.",
+    summary:
+      'An AI call assistant. It phones a company for you, works through the automated menu, presses the right keys and waits on hold, then alerts you when a live agent picks up. Each menu it navigates is mapped into a visual phone tree that later calls reuse.',
+    contribution: 'An AI product I worked on: the AI calling assistant.',
+    capabilities: [
+      'Phone-menu (IVR) navigation that presses the right keys automatically',
+      'Open-ended requests such as “I need refund support”, with real-time transcription',
+      'Hold-for-me: waits in the background and alerts you when a person joins',
+      'Phone trees mapped once and cached, so the next call routes in one tap',
+    ],
+    stack: ['LLM', 'Twilio', 'Firebase', 'Stripe'],
+    href: 'https://xdial.ai',
+    host: 'xdial.ai',
+    layout: 'wide',
+    screenshot: { src: '/projects/xdial.jpg', alt: 'The xDial AI homepage' },
     visual: 'agents',
   },
   {
-    slug: 'rag-knowledge-service',
-    description: 'Hybrid vector and keyword retrieval with reranking, cited answers and measured recall.',
-    tags: ['RAG', 'AI', 'Data'],
-    visual: 'rag',
+    slug: 'bioreact',
+    name: 'BioReact',
+    category: 'AI · Data Platform',
+    disciplines: ['ai', 'saas', 'data'],
+    tagline: 'Shedding light on your data.',
+    summary:
+      'AI-powered bioprocess optimisation for scientists. BioReact unifies fermentation and bioprocess data, finds the process variables that drive performance, and simulates conditions before a single experiment is run.',
+    contribution: 'A project I worked on: the BioReact web platform.',
+    capabilities: [
+      'Data unified from lab equipment and ELNs, with online and offline time series aligned automatically',
+      'Statistical analysis: PCA, ANOVA, factor importance and variation analysis',
+      'AI/ML simulations that predict growth, yield and viability conditions in silico',
+      'Visualisations such as heatmaps and box plots to spot the variables that matter',
+    ],
+    stack: ['Next.js', 'React', 'AI / ML'],
+    href: 'https://www.bioreact.co/',
+    host: 'bioreact.co',
+    layout: 'split',
+    screenshot: { src: '/projects/bioreact.jpg', alt: 'The BioReact homepage' },
   },
   {
-    slug: 'saas-platform-core',
-    description: 'Multi-tenant foundation: auth and roles, usage metering, billing hooks and an admin surface.',
-    tags: ['SaaS', 'Full-Stack', 'Multi-tenant'],
-    visual: 'saas',
+    slug: 'fanforge',
+    name: 'FanForge',
+    category: 'Full-Stack',
+    disciplines: ['fullstack'],
+    tagline: 'A creator-first marketplace.',
+    summary:
+      'Official and fan-made merch in one place. Independent sellers list products, and buyers browse by category and support creators with no platform fee.',
+    contribution: 'Full-stack development of the marketplace.',
+    capabilities: [
+      'Product listings from independent sellers',
+      'Category browsing, search and filters',
+      'Accounts, sign-in and a cart',
+    ],
+    stack: ['React', 'Vite'],
+    href: 'https://www.fanforgecf.com/',
+    host: 'fanforgecf.com',
+    layout: 'pair',
+    screenshot: { src: '/projects/fanforge.jpg', alt: 'The FanForge marketplace homepage' },
+  },
+  {
+    slug: 'tranga-pods',
+    name: 'Tranga Pods',
+    category: 'Full-Stack',
+    disciplines: ['fullstack'],
+    tagline: 'Curate, transact, retain.',
+    summary:
+      'The web platform for Tranga’s micro-retail pods, which turn unused venue space into revenue: a Convenience Pod and a Fragrance Pod, with contactless payment and sales insight for venues.',
+    contribution: 'Full-stack development of the Tranga Pods site.',
+    capabilities: [
+      'Product stories for both pod lines',
+      'How-it-works, partnership and venue enquiry flows',
+      'Contact and customer support',
+    ],
+    stack: [],
+    href: 'https://www.trangapods.com/',
+    host: 'trangapods.com',
+    layout: 'pair',
+    screenshot: { src: '/projects/tranga-pods.jpg', alt: 'The Tranga Pods homepage' },
+  },
+  {
+    slug: 'dolibarr',
+    name: 'Dolibarr',
+    category: 'PHP · ERP / CRM',
+    disciplines: ['php'],
+    tagline: 'PHP work on an open-source ERP & CRM.',
+    summary:
+      'Dolibarr is a community-maintained, open-source ERP and CRM written in PHP, covering customers, proposals, orders, invoices, stock and projects.',
+    contribution: 'PHP development work on Dolibarr.',
+    stack: ['PHP', 'MySQL'],
+    href: 'https://www.dolibarr.org/',
+    host: 'dolibarr.org',
+    layout: 'open-source',
+    openSource: { platform: 'Open-source ERP & CRM' },
+  },
+  {
+    slug: 'kanboard',
+    name: 'Kanboard',
+    category: 'PHP · Project Management',
+    disciplines: ['php'],
+    tagline: 'PHP work on an open-source Kanban tool.',
+    summary:
+      'Kanboard is a community-maintained, open-source project-management tool written in PHP, built around Kanban boards, with plugins and a JSON-RPC API.',
+    contribution: 'PHP development work on Kanboard.',
+    stack: ['PHP', 'JSON-RPC'],
+    href: 'https://kanboard.org/',
+    host: 'kanboard.org',
+    layout: 'open-source',
+    openSource: { platform: 'Open-source Kanban' },
   },
 ];
 
-export const landingProjects: LandingProject[] = projectSlides.flatMap((slide) => {
-  const project = getProject(slide.slug);
-  if (!project) return [];
-  return [
-    {
-      slug: project.slug,
-      name: project.name,
-      description: slide.description,
-      tags: slide.tags,
-      stack: project.technologies.slice(0, 5),
-      visual: slide.visual,
-      // No case-study pages: each project opens at its own stop in the 3D world.
-      href: worldHref(projectStationId(project.slug)),
-    },
-  ];
-});
+/** The anchor each project's section carries, for the index's jump links. */
+export const projectAnchor = (slug: string) => `work-${slug}`;
+
+/** Disciplines with the number of projects in each, leaving out any with none. */
+export const disciplineCounts = projectDisciplines
+  .map((discipline) => ({
+    ...discipline,
+    count: archiveProjects.filter((project) => project.disciplines.includes(discipline.id)).length,
+  }))
+  .filter((discipline) => discipline.count > 0);
 
 export const projectsIntro = {
-  title: 'Selected Projects',
-  description: 'Real engineering work, from architecture to production.',
-  allProjects: { label: 'Explore Them All in 3D', href: worldHref() } satisfies LandingLink,
+  eyebrow: 'Projects',
+  title: 'Engineering Work Archive',
+  description: `${archiveProjects.length} real projects across AI systems, computer vision, SaaS platforms, full-stack products and PHP.`,
+  indexTitle: 'Project Index',
 };
 
 /* ──────────────────────────────── Experience ────────────────────────────── */
 
 export interface TimelineEntry {
+  /** Year range for the pill and the summit milestone, e.g. "2022 – 2025". */
   period: string;
+  company: string;
   role: string;
+  /** Exact months, shown beside the role. */
+  dates: string;
+  location: string;
   summary: string;
+  highlights: string[];
   tech: string[];
   current?: boolean;
 }
@@ -322,33 +602,22 @@ export interface TimelineEntry {
 export const experienceIntro = {
   title: 'Experience',
   accent: `${profile.yearsExperience} Years`,
-  description: 'A journey of building products, leading technical work and delivering real impact.',
+  description:
+    'Developer platforms, real-time event pipelines and high-throughput APIs at Instagram, Amazon and TikTok.',
   more: { label: 'How I work', href: '#about' } satisfies LandingLink,
 };
 
-// [CONFIRM] Dates and titles come from the homepage design.
-export const timeline: TimelineEntry[] = [
-  {
-    period: '2022 – Present',
-    role: 'Senior Software Engineer (AI / Full-Stack)',
-    summary: 'Design and build AI products, agent systems and scalable SaaS platforms.',
-    tech: ['Python', 'FastAPI', 'Next.js', 'PostgreSQL', 'Redis', 'AWS', 'LLMs'],
-    current: true,
-  },
-  {
-    period: '2019 – 2022',
-    role: 'Software Engineer / Tech Lead',
-    summary:
-      'Led development of web services and backend systems, improved performance and reliability, and mentored engineers.',
-    tech: ['Node.js', 'TypeScript', 'Docker', 'AWS'],
-  },
-  {
-    period: '2016 – 2019',
-    role: 'Software Engineer',
-    summary: 'Built and maintained core web applications, APIs and data pipelines.',
-    tech: ['Python', 'Django', 'PostgreSQL', 'JavaScript'],
-  },
-];
+/** The homepage timeline, read from the one career record in experience.ts. */
+export const timeline: TimelineEntry[] = experience.map((entry) => ({
+  period: entry.years,
+  company: entry.organisation,
+  role: entry.role,
+  dates: entry.period,
+  location: entry.location,
+  summary: entry.summary,
+  highlights: entry.highlights.slice(0, 3),
+  tech: entry.stack,
+}));
 
 /* ───────────────────────────── How I engineer ───────────────────────────── */
 
@@ -572,16 +841,6 @@ export const about = {
   principlesTitle: 'Principles I work by',
   principles,
 };
-
-/* ─────────────────────────────────── FAQ ────────────────────────────────── */
-
-export const faqIntro = {
-  eyebrow: 'FAQ',
-  title: 'Questions, answered',
-  description: 'The things founders usually ask before getting in touch.',
-};
-
-export const faqs = serviceFaqs;
 
 /* ───────────────────────────────── Contact ──────────────────────────────── */
 

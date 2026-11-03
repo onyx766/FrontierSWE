@@ -3,9 +3,9 @@ import { BACK, MAIN, PanelHeader, PanelSvg, Pill, SIDE, ink, vars, type PanelArt
 import styles from './Projects.module.css';
 
 /**
- * Agent Orchestration Platform: the planner node fanning out to its tools
- * with requests and results travelling along the edges, the run's steps,
- * and the execution trace streaming in.
+ * xDial AI: the call agent fanning out to its telephony tools (menu mapping,
+ * DTMF, intent, hold watch) with traffic along the edges, the call's steps,
+ * and the live call log.
  */
 
 type Glyph = 'spark' | 'search' | 'db' | 'globe' | 'code';
@@ -13,11 +13,11 @@ type Glyph = 'spark' | 'search' | 'db' | 'globe' | 'code';
 const CORE = { x: 104, y: 110, w: 74, h: 32 };
 
 const TOOLS: { label: string; cx: number; cy: number; w: number; glyph: Glyph }[] = [
-  { label: 'llm · claude', cx: 141, cy: 56, w: 76, glyph: 'spark' },
-  { label: 'search_docs', cx: 51, cy: 100, w: 68, glyph: 'search' },
-  { label: 'run_sql', cx: 232, cy: 100, w: 56, glyph: 'db' },
-  { label: 'http.fetch', cx: 60, cy: 192, w: 62, glyph: 'globe' },
-  { label: 'code.exec', cx: 222, cy: 192, w: 60, glyph: 'code' },
+  { label: 'llm · intent', cx: 141, cy: 56, w: 76, glyph: 'spark' },
+  { label: 'ivr.mapper', cx: 51, cy: 100, w: 68, glyph: 'search' },
+  { label: 'dtmf.tx', cx: 232, cy: 100, w: 56, glyph: 'db' },
+  { label: 'telephony', cx: 60, cy: 192, w: 62, glyph: 'globe' },
+  { label: 'hold.wait', cx: 222, cy: 192, w: 60, glyph: 'code' },
 ];
 
 /** Planner to tool. `back` packets travel the other way: results returning. */
@@ -80,7 +80,7 @@ function Graph() {
         </linearGradient>
       </defs>
 
-      <PanelHeader width={MAIN.w} title="orchestrator">
+      <PanelHeader width={MAIN.w} title="xdial · call agent">
         <rect
           x="216"
           y="6.5"
@@ -93,7 +93,7 @@ function Graph() {
         />
         <circle cx="223.5" cy="12" r="1.9" fill={ink.green} className={styles.blink} />
         <text x="228.5" y="14.2" fontSize="5.8" fill={ink.mint} className={styles.mono}>
-          streaming
+          live call
         </text>
       </PanelHeader>
 
@@ -175,7 +175,7 @@ function Graph() {
         strokeWidth="0.8"
       />
       <text x="141" y="125" textAnchor="middle" fontSize="8.4" fontWeight="700" fill="#ffffff">
-        planner
+        call agent
       </text>
       <text
         x="141"
@@ -185,25 +185,25 @@ function Graph() {
         fill="rgba(255,255,255,0.78)"
         letterSpacing="0.1em"
       >
-        ORCHESTRATOR
+        IVR NAVIGATOR
       </text>
 
       <text x="14" y="227" fontSize="5.6" fill={ink.muted} className={styles.mono}>
-        5 tools · step 7/12
+        phone tree cached · 7 nodes
       </text>
       <text x="268" y="227" textAnchor="end" fontSize="5.6" fill={ink.muted} className={styles.mono}>
-        p95 1.8s
+        US · CA
       </text>
     </PanelSvg>
   );
 }
 
 const STEPS: { label: string; time: string; state: 'done' | 'running' | 'pending' }[] = [
-  { label: 'plan', time: '0.4s', state: 'done' },
-  { label: 'retrieve', time: '1.1s', state: 'done' },
-  { label: 'call tools', time: '2.3s', state: 'running' },
-  { label: 'verify', time: '—', state: 'pending' },
-  { label: 'respond', time: '—', state: 'pending' },
+  { label: 'dial', time: '0.4s', state: 'done' },
+  { label: 'map menu', time: '3.1s', state: 'done' },
+  { label: 'press keys', time: '1.2s', state: 'running' },
+  { label: 'hold for me', time: '—', state: 'pending' },
+  { label: 'connect', time: '—', state: 'pending' },
 ];
 
 function Steps() {
@@ -215,7 +215,7 @@ function Steps() {
           <stop offset="1" stopColor="#d6c9ff" />
         </linearGradient>
       </defs>
-      <PanelHeader width={BACK.w} title="run steps">
+      <PanelHeader width={BACK.w} title="call steps">
         <text x="146" y="14.5" textAnchor="end" fontSize="6" fill={ink.lilac} className={styles.mono}>
           3/5
         </text>
@@ -300,21 +300,21 @@ function Steps() {
       })}
 
       <text x="11" y="188" fontSize="5.4" fill={ink.muted} className={styles.mono}>
-        budget 12 steps · $0.012
+        no phone tree, no waiting
       </text>
     </PanelSvg>
   );
 }
 
 const TRACE: { t: string; event: string; value: string }[] = [
-  { t: '00.00', event: 'run.start', value: '' },
-  { t: '00.08', event: 'model.call', value: '412ms' },
-  { t: '00.49', event: 'tool.search', value: '182ms' },
-  { t: '00.67', event: 'tool.sql', value: '96ms' },
-  { t: '00.76', event: 'model.call', value: '388ms' },
-  { t: '01.15', event: 'tool.exec', value: '240ms' },
-  { t: '01.39', event: 'stream', value: '128 tok' },
-  { t: '01.52', event: 'run.done', value: 'ok' },
+  { t: '00.00', event: 'call.dial', value: '' },
+  { t: '00.08', event: 'ivr.listen', value: '4.1s' },
+  { t: '00.49', event: 'menu.map', value: '5 opts' },
+  { t: '00.67', event: 'dtmf.press', value: '2' },
+  { t: '00.76', event: 'ivr.listen', value: '3.6s' },
+  { t: '01.15', event: 'intent.say', value: 'refund' },
+  { t: '01.39', event: 'hold.wait', value: '6m 12s' },
+  { t: '01.52', event: 'agent.live', value: 'ok' },
 ];
 
 /** The waterfall under the log: [x, row, width, colour]. */
@@ -330,9 +330,9 @@ const SPANS: [number, number, number, string][] = [
 function Trace() {
   return (
     <PanelSvg size={SIDE}>
-      <PanelHeader width={SIDE.w} title="trace">
+      <PanelHeader width={SIDE.w} title="call log">
         <text x="149" y="14.5" textAnchor="end" fontSize="5.6" fill={ink.muted} className={styles.mono}>
-          run_2419
+          call_2419
         </text>
       </PanelHeader>
 
@@ -383,7 +383,7 @@ function Trace() {
       {SPANS.map(([x, row, w, color]) => (
         <rect key={x} x={x} y={185.5 + row * 5} width={w} height="3" rx="1.5" fill={color} opacity="0.9" />
       ))}
-      <Pill x={110} y={166} w={39} text="1.52s" tone="muted" h={10} />
+      <Pill x={110} y={166} w={39} text="6m 20s" tone="muted" h={10} />
     </PanelSvg>
   );
 }

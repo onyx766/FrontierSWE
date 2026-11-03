@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { domains } from '@/data/domains';
-import { projects } from '@/data/projects';
+import { archiveProjects } from '@/data/landing';
+import type { ArchitectureSpec } from '@/lib/types';
 import { distance, type Vec3 } from '../../../world/vec';
 import { MAX_MODEL_NODES } from '../holoMaterials';
 import {
@@ -15,11 +16,11 @@ import {
   type RouteSample,
 } from '../architectureModel';
 
-const models = projects.map((project) => ({
-  name: project.slug,
-  spec: project.architecture,
-  model: buildArchitectureModel(project.architecture),
-}));
+const models = archiveProjects.flatMap((project) =>
+  project.architecture
+    ? [{ name: project.slug, spec: project.architecture, model: buildArchitectureModel(project.architecture) }]
+    : [],
+);
 
 function touchesBox(point: Vec3, node: ModelNode): boolean {
   const margin = 1e-6;
@@ -226,7 +227,7 @@ describe('request route', () => {
   });
 
   it('is omitted rather than invented when a spec has no paths', () => {
-    const spec = { ...projects[0]!.architecture, paths: [] };
+    const spec: ArchitectureSpec = { ...models[0]!.spec, paths: [] };
     expect(buildArchitectureModel(spec).route).toBeNull();
   });
 });

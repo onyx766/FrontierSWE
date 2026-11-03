@@ -9,7 +9,7 @@ import type { DomainId } from '@/lib/types';
  * adding a stop is an edit here and nowhere else.
  *
  * The long-form explanations are not written here at all: `beats.ts` derives
- * them from `src/data/projects.ts`, `domains.ts`, `experience.ts` and
+ * them from the homepage archive in `landing.ts`, `domains.ts`, `experience.ts` and
  * `services.ts`, so the robot cannot contradict the rest of the site.
  *
  * Placement is polar, matching the convention in `domains.ts`:
@@ -70,29 +70,14 @@ export const islands: IslandContent[] = [
   {
     id: 'ai-core',
     label: 'AI CORE',
-    sublabel: 'LLM · Agents · RAG',
+    sublabel: 'LLM · Agents · AI SaaS',
     bearing: 0,
     accent: 'violet',
-    arrival: 'LLM systems that survive real traffic.',
+    arrival: 'AI products built for real traffic.',
     stations: [
-      {
-        id: 'agent-orchestration-platform',
-        title: 'Agent Orchestration Platform',
-        subject: { type: 'project', slug: 'agent-orchestration-platform' },
-        angle: -56,
-      },
-      {
-        id: 'domain-ai-systems',
-        title: 'AI Systems',
-        subject: { type: 'domain', domain: 'ai-systems' },
-        angle: 0,
-      },
-      {
-        id: 'rag-knowledge-service',
-        title: 'RAG Knowledge Service',
-        subject: { type: 'project', slug: 'rag-knowledge-service' },
-        angle: 56,
-      },
+      { id: 'zypact', title: 'Zypact', subject: { type: 'project', slug: 'zypact' }, angle: -56 },
+      { id: 'domain-ai-systems', title: 'AI Systems', subject: { type: 'domain', domain: 'ai-systems' }, angle: 0 },
+      { id: 'xdial', title: 'xDial AI', subject: { type: 'project', slug: 'xdial' }, angle: 56 },
     ],
   },
   {
@@ -103,106 +88,57 @@ export const islands: IslandContent[] = [
     accent: 'blue',
     arrival: 'Who builds all of this, and how.',
     stations: [
-      {
-        id: 'about-profile',
-        title: 'About Ryan',
-        subject: { type: 'about' },
-        angle: -42,
-      },
-      {
-        id: 'engineering-principles',
-        title: 'Engineering Principles',
-        subject: { type: 'principles' },
-        angle: 42,
-      },
+      { id: 'about-profile', title: 'About Ryan', subject: { type: 'about' }, angle: -42 },
+      { id: 'engineering-principles', title: 'Engineering Principles', subject: { type: 'principles' }, angle: 42 },
     ],
   },
   {
     id: 'experience-archive',
     label: 'EXPERIENCE\nARCHIVE',
-    sublabel: 'Career · Timeline',
+    sublabel: 'Instagram · Amazon · TikTok',
     bearing: 120,
     accent: 'orange',
-    arrival: 'The record of what has been shipped.',
+    arrival: 'Six years of platforms, pipelines and APIs.',
     stations: [
-      {
-        id: 'career-timeline',
-        title: 'Career Timeline',
-        subject: { type: 'career' },
-        angle: -42,
-      },
-      {
-        id: 'capability-matrix',
-        title: 'Capability Matrix',
-        subject: { type: 'capabilities' },
-        angle: 42,
-      },
+      { id: 'career-timeline', title: 'Career Timeline', subject: { type: 'career' }, angle: -42 },
+      { id: 'capability-matrix', title: 'Capability Matrix', subject: { type: 'capabilities' }, angle: 42 },
     ],
   },
   {
     id: 'data-vault',
     label: 'DATA VAULT',
-    sublabel: 'PostgreSQL · Redis · Queues',
+    sublabel: 'Vision · Data · ML',
     bearing: 180,
     accent: 'orange',
-    arrival: 'Where slow systems get fast again.',
+    arrival: 'Where pixels and lab data become decisions.',
     stations: [
-      {
-        id: 'query-performance-rescue',
-        title: 'Query Performance Rescue',
-        subject: { type: 'project', slug: 'query-performance-rescue' },
-        angle: -42,
-      },
-      {
-        id: 'domain-data',
-        title: 'Data',
-        subject: { type: 'domain', domain: 'data' },
-        angle: 42,
-      },
+      { id: 'bps-pro', title: 'BPS Pro-Score', subject: { type: 'project', slug: 'bps-pro' }, angle: -42 },
+      { id: 'bioreact', title: 'BioReact', subject: { type: 'project', slug: 'bioreact' }, angle: 42 },
     ],
   },
   {
     id: 'backend-engine',
     label: 'BACKEND ENGINE',
-    sublabel: 'APIs · System Design · Scaling',
+    sublabel: 'PHP · Open Source',
     bearing: 240,
     accent: 'blue',
-    arrival: 'The service layer everything else depends on.',
+    arrival: 'PHP work on open-source business software.',
     stations: [
-      {
-        id: 'realtime-events-gateway',
-        title: 'Realtime Events Gateway',
-        subject: { type: 'project', slug: 'realtime-events-gateway' },
-        angle: -42,
-      },
-      {
-        id: 'domain-core-engine',
-        title: 'Core Engine',
-        subject: { type: 'domain', domain: 'core-engine' },
-        angle: 42,
-      },
+      { id: 'dolibarr', title: 'Dolibarr', subject: { type: 'project', slug: 'dolibarr' }, angle: -42 },
+      { id: 'kanboard', title: 'Kanboard', subject: { type: 'project', slug: 'kanboard' }, angle: 42 },
     ],
   },
   {
     id: 'project-lab',
     label: 'PROJECT LAB',
-    sublabel: 'Featured Work',
+    sublabel: 'Full-Stack Products',
     bearing: 300,
     accent: 'cyan',
     arrival: 'Products built from the foundation up.',
     stations: [
-      {
-        id: 'saas-platform-core',
-        title: 'SaaS Platform Core',
-        subject: { type: 'project', slug: 'saas-platform-core' },
-        angle: -42,
-      },
-      {
-        id: 'services',
-        title: 'Services',
-        subject: { type: 'services' },
-        angle: 42,
-      },
+      { id: 'fanforge', title: 'FanForge', subject: { type: 'project', slug: 'fanforge' }, angle: -56 },
+      { id: 'services', title: 'Services', subject: { type: 'services' }, angle: 0 },
+      { id: 'tranga-pods', title: 'Tranga Pods', subject: { type: 'project', slug: 'tranga-pods' }, angle: 56 },
     ],
   },
 ];
@@ -242,11 +178,14 @@ export function worldHref(stationId?: string | null): string {
 /** Every project, then the people-facing stops. The guided tour walks this list. */
 export const tourOrder: string[] = [
   'welcome',
-  'agent-orchestration-platform',
-  'rag-knowledge-service',
-  'saas-platform-core',
-  'realtime-events-gateway',
-  'query-performance-rescue',
+  'zypact',
+  'bps-pro',
+  'xdial',
+  'bioreact',
+  'fanforge',
+  'tranga-pods',
+  'dolibarr',
+  'kanboard',
   'career-timeline',
   'about-profile',
 ];

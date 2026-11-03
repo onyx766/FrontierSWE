@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { projects } from '@/data/projects';
+import { archiveProjects as projects } from '@/data/landing';
 import { projectStationId, WORLD_AT_PARAM, worldHref } from '@/data/universe';
 import { world } from '../../world/world';
 import { knownStation, placeRobotAtStation, requestedStation } from '../arrival';
@@ -67,7 +67,7 @@ describe('arriving at a station from a link', () => {
   });
 
   it('opens the briefing in explore mode and records the visit', () => {
-    const id = 'saas-platform-core';
+    const id = 'fanforge';
     useUniverse.getState().arriveAt(id);
     const state = useUniverse.getState();
     expect(state.phase).toBe('explore');
@@ -81,7 +81,7 @@ describe('arriving at a station from a link', () => {
 
   it('waits for the scene', () => {
     useUniverse.setState({ phase: 'loading' });
-    useUniverse.getState().arriveAt('saas-platform-core');
+    useUniverse.getState().arriveAt('fanforge');
     expect(useUniverse.getState().active).toBeNull();
   });
 });

@@ -2,15 +2,15 @@ import { BACK, MAIN, PanelHeader, PanelSvg, Pill, SIDE, ink, vars, type PanelArt
 import styles from './Projects.module.css';
 
 /**
- * RAG Knowledge Service: documents chunked and embedded, a query scanned
- * across the vector index with its nearest neighbours lighting up, keyword
- * matches beside it, a reranked shortlist, and the cited answer.
+ * Zypact: an approved protocol, one buyer question sampled against the AI
+ * surface with the runs that mention you lighting up, the brands cited in
+ * each answer, positions, and the Outcome Card with its preserved evidence.
  */
 
 const DOCS: { name: string; size: string }[] = [
-  { name: 'handbook.pdf', size: '2.4 MB' },
-  { name: 'api-docs.md', size: '380 KB' },
-  { name: 'faq.html', size: '96 KB' },
+  { name: 'question.txt', size: 'locked' },
+  { name: 'sampling.json', size: 'n = 30' },
+  { name: 'decision.rule', size: 'v1' },
 ];
 
 function Ingest() {
@@ -23,9 +23,9 @@ function Ingest() {
           <stop offset="1" stopColor="#f0abfc" />
         </linearGradient>
       </defs>
-      <PanelHeader width={BACK.w} title="ingest">
+      <PanelHeader width={BACK.w} title="protocol">
         <text x="146" y="14.5" textAnchor="end" fontSize="5.6" fill={ink.lilac} className={styles.mono}>
-          1,280 chunks
+          approved
         </text>
       </PanelHeader>
 
@@ -57,7 +57,7 @@ function Ingest() {
         strokeLinejoin="round"
       />
       <text x="86" y="96" fontSize="5.2" fill={ink.muted} className={styles.mono}>
-        chunk → embed
+        sample → record
       </text>
 
       {chunks.map(({ col, row, i }) => (
@@ -75,7 +75,7 @@ function Ingest() {
       ))}
 
       <text x="12" y="171" fontSize="6" fill={ink.soft}>
-        embedding
+        runs captured
       </text>
       <text x="146" y="171" textAnchor="end" fontSize="5.6" fill={ink.lilac} className={styles.mono}>
         82%
@@ -83,7 +83,7 @@ function Ingest() {
       <rect x="12" y="176" width="134" height="3.5" rx="1.75" fill="rgba(255,255,255,0.1)" />
       <rect x="12" y="176" width="110" height="3.5" rx="1.75" fill="url(#prj-rag-progress)" />
       <text x="12" y="191" fontSize="5.2" fill={ink.muted} className={styles.mono}>
-        pgvector · 1536 dims
+        evidence · insert-only
       </text>
     </PanelSvg>
   );
@@ -109,18 +109,18 @@ const QUERY = { x: 101, y: 113 };
 const hitDelay = (x: number) => `${((x + 3) * 0.019 - 0.23 - 3.8).toFixed(2)}s`;
 
 const TERMS: { term: string; weight: number; hit: boolean }[] = [
-  { term: 'refund', weight: 0.92, hit: true },
-  { term: 'annual', weight: 0.74, hit: true },
-  { term: 'plan', weight: 0.61, hit: true },
-  { term: 'invoice', weight: 0.3, hit: false },
-  { term: 'policy', weight: 0.22, hit: false },
+  { term: 'you', weight: 0.63, hit: true },
+  { term: 'brand A', weight: 0.81, hit: true },
+  { term: 'brand B', weight: 0.57, hit: true },
+  { term: 'brand C', weight: 0.3, hit: false },
+  { term: 'brand D', weight: 0.22, hit: false },
 ];
 
 const RANKED: { ref: string; score: number }[] = [
-  { ref: '§4.2', score: 0.94 },
-  { ref: 'faq#3', score: 0.88 },
-  { ref: '§1.1', score: 0.71 },
-  { ref: 'api/v2', score: 0.52 },
+  { ref: 'brand A', score: 0.94 },
+  { ref: 'you', score: 0.88 },
+  { ref: 'brand B', score: 0.71 },
+  { ref: 'brand C', score: 0.52 },
 ];
 
 function Retrieval() {
@@ -147,8 +147,8 @@ function Retrieval() {
         </clipPath>
       </defs>
 
-      <PanelHeader width={MAIN.w} title="retrieval · hybrid">
-        <Pill x={234} y={6.5} w={38} text="top-k 8" />
+      <PanelHeader width={MAIN.w} title="perplexity · sonar">
+        <Pill x={234} y={6.5} w={38} text="n = 30" />
       </PanelHeader>
 
       <rect
@@ -166,7 +166,7 @@ function Retrieval() {
         <path d="M24.4 41.9 L26.2 43.7" />
       </g>
       <text x="31" y="42.8" fontSize="6.6" fill={ink.text}>
-        How do refunds work on annual plans?
+        Best compliance tool for a startup?
       </text>
       <rect x="151" y="36.4" width="1.2" height="8" fill={ink.lilac} className={styles.blink} />
       <circle cx="262" cy="40.5" r="6" fill="url(#prj-rag-send)" />
@@ -182,10 +182,10 @@ function Retrieval() {
       {/* Vector index */}
       <rect x="12" y="57" width="168" height="108" rx="8" fill={ink.well} stroke="rgba(255,255,255,0.09)" />
       <text x="20" y="68.5" fontSize="5.4" fill={ink.muted} className={styles.mono}>
-        vector · pgvector
+        sampled answers
       </text>
       <text x="172" y="68.5" textAnchor="end" fontSize="5.4" fill={ink.lilac} className={styles.mono}>
-        cos ≥ 0.82
+        7 mention you
       </text>
       <g clipPath="url(#prj-rag-clip)">
         <rect
@@ -229,7 +229,7 @@ function Retrieval() {
       {/* Keyword matches */}
       <rect x="188" y="57" width="82" height="108" rx="8" fill={ink.well} stroke="rgba(255,255,255,0.09)" />
       <text x="196" y="68.5" fontSize="5.4" fill={ink.muted} className={styles.mono}>
-        keyword · bm25
+        brands cited
       </text>
       {TERMS.map((term, i) => {
         const y = 80 + i * 16.5;
@@ -270,10 +270,10 @@ function Retrieval() {
 
       {/* Rerank */}
       <text x="12" y="181" fontSize="6.4" fontWeight="600" fill={ink.text}>
-        rerank
+        position
       </text>
       <text x="270" y="181" textAnchor="end" fontSize="5.4" fill={ink.muted} className={styles.mono}>
-        cross-encoder
+        prompt-scoped
       </text>
       {RANKED.map((item, i) => {
         const y = 188 + i * 10.5;
@@ -312,13 +312,13 @@ function Retrieval() {
 }
 
 const SOURCES: { n: number; name: string; at: string }[] = [
-  { n: 1, name: 'billing-policy.pdf', at: 'p.4' },
-  { n: 2, name: 'help/refunds.md', at: '§3' },
+  { n: 1, name: 'run-0412.json', at: '#12' },
+  { n: 2, name: 'cites/pricing.html', at: '#27' },
 ];
 
 const EVALS: { label: string; value: number }[] = [
-  { label: 'recall@10', value: 0.94 },
-  { label: 'faithfulness', value: 0.97 },
+  { label: 'before', value: 0.41 },
+  { label: 'after retest', value: 0.63 },
 ];
 
 function Answer() {
@@ -330,28 +330,28 @@ function Answer() {
           <stop offset="1" stopColor="#c4b5fd" />
         </linearGradient>
       </defs>
-      <PanelHeader width={SIDE.w} title="answer">
-        <Pill x={120} y={6.5} w={30} text="cited" tone="green" />
+      <PanelHeader width={SIDE.w} title="outcome card">
+        <Pill x={120} y={6.5} w={30} text="+ seen" tone="green" />
       </PanelHeader>
 
       <g fontSize="6.3" fill={ink.text}>
         <text x="10" y="40">
-          Annual plans can be refunded
+          Mention rate rose after the
         </text>
         <text x="10" y="50">
-          within 30 days of renewal <tspan fill={ink.lilac}>[1]</tspan>
+          pricing page change <tspan fill={ink.lilac}>[1]</tspan>
         </text>
         <text x="10" y="60">
-          Refunds go back to the original
+          Same question, same surface,
         </text>
         <text x="10" y="70">
-          payment method in 5–10 days <tspan fill={ink.lilac}>[2]</tspan>
+          re-asked in the window <tspan fill={ink.lilac}>[2]</tspan>
         </text>
       </g>
       <rect x="10" y="75" width="1.2" height="7" fill={ink.lilac} className={styles.blink} />
 
       <text x="10" y="94" fontSize="4.8" fill={ink.muted} letterSpacing="0.12em" className={styles.mono}>
-        SOURCES
+        EVIDENCE
       </text>
       {SOURCES.map((source, i) => {
         const y = 99 + i * 20;
@@ -382,7 +382,7 @@ function Answer() {
       })}
 
       <text x="10" y="150" fontSize="4.8" fill={ink.muted} letterSpacing="0.12em" className={styles.mono}>
-        EVAL
+        MENTION RATE
       </text>
       {EVALS.map((metric, i) => {
         const y = 161 + i * 18;
@@ -409,7 +409,7 @@ function Answer() {
         );
       })}
       <text x="10" y="200" fontSize="5.2" fill={ink.muted} className={styles.mono}>
-        640 ms · 3 sources
+        increase observed
       </text>
     </PanelSvg>
   );

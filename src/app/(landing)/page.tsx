@@ -5,7 +5,6 @@ import { About } from '@/components/landing/sections/About';
 import { Contact } from '@/components/landing/sections/Contact';
 import { Engagement } from '@/components/landing/sections/Engagement';
 import { Experience } from '@/components/landing/sections/Experience';
-import { Faq } from '@/components/landing/sections/Faq';
 import { FinalCta } from '@/components/landing/sections/FinalCta';
 import { HowIEngineer } from '@/components/landing/sections/HowIEngineer';
 import { Process } from '@/components/landing/sections/Process';
@@ -44,7 +43,12 @@ export default function HomePage() {
     role: profile.role,
     description: profile.tagline,
     skills: capabilityStrip,
-    sameAs: [profile.contact.github, profile.contact.linkedin, profile.contact.x].filter(
+    sameAs: [
+      profile.contact.github,
+      profile.contact.linkedin,
+      profile.contact.telegram ? `https://t.me/${profile.contact.telegram}` : undefined,
+      profile.contact.x,
+    ].filter(
       (value): value is string => typeof value === 'string',
     ),
   });
@@ -67,7 +71,6 @@ export default function HomePage() {
       <Process />
       <Engagement />
       <About />
-      <Faq />
       <Contact />
       <FinalCta />
     </>

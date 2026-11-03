@@ -1,7 +1,7 @@
 'use client';
 
 import * as THREE from 'three';
-import { projects } from '@/data/projects';
+import { archiveProjects } from '@/data/landing';
 import { islands } from '@/data/universe';
 import { createRng, rngBetween } from '@/lib/rng';
 import { useUniverse } from '../../../state/store';
@@ -39,7 +39,7 @@ import {
  * bank of equipment beneath it. The panels turn towards the crystal, as in the
  * reference, so the island looks inward at the rest of the world.
  *
- * The screens show the site's real projects, from `src/data/projects.ts`. Their
+ * The screens show the site's real projects, from the homepage archive (`src/data/landing.ts`). Their
  * charts are drawn from seeded noise and carry no numbers, so nothing on them
  * can be read as a measurement.
  */
@@ -154,7 +154,15 @@ function paintDashboard(context: CanvasRenderingContext2D): void {
   const [x, y, w, h] = DASHBOARD;
   const rng = createRng(0x1ab);
   const island = islands.find((entry) => entry.id === 'project-lab');
-  const featured = projects.filter((project) => project.featured).slice(0, 5);
+  /* This island's own projects first, then the rest of the archive. */
+  const here = new Set(
+    island?.stations.flatMap((station) => (station.subject.type === 'project' ? [station.subject.slug] : [])),
+  );
+  const listed = [
+    ...archiveProjects.filter((project) => here.has(project.slug)),
+    ...archiveProjects.filter((project) => !here.has(project.slug)),
+  ];
+  const featured = listed.filter((project) => project.stack.length > 0);
 
   const glass = context.createLinearGradient(0, y, 0, y + h);
   glass.addColorStop(0, 'rgba(16,40,136,0.44)');
@@ -190,7 +198,7 @@ function paintDashboard(context: CanvasRenderingContext2D): void {
   context.fillRect(x + w / 2 - 1.5, y + 8, 3, h - 16);
 
   /* Left column: the projects, with a build bar each. */
-  featured.slice(0, 3).forEach((project, index) => {
+  listed.slice(0, 3).forEach((project, index) => {
     const rowY = y + 226 + index * 58;
     context.fillStyle = index === 0 ? '#58d8ff' : '#6a8cff';
     context.fillRect(x + 62, rowY - 17, 16, 16);
@@ -214,7 +222,7 @@ function paintDashboard(context: CanvasRenderingContext2D): void {
   context.roundRect(x + 62, y + 584, 440, 150, 22);
   context.stroke();
   context.restore();
-  const stack = featured[0]?.technologies ?? [];
+  const stack = featured[0]?.stack ?? [];
   stack.slice(0, 2).forEach((technology, index) => {
     paintText(context, technology, x + 92, y + 644 + index * 58, {
       size: 40,
@@ -232,7 +240,7 @@ function paintDashboard(context: CanvasRenderingContext2D): void {
   });
 
   /* Right column: stack rows in cyan, then magenta bars. */
-  (featured[1]?.technologies ?? []).slice(0, 4).forEach((technology, index) => {
+  (featured[1]?.stack ?? []).slice(0, 4).forEach((technology, index) => {
     const rowY = y + 240 + index * 50;
     paintText(context, technology, x + 950, rowY, {
       size: 30,

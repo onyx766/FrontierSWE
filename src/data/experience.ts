@@ -2,168 +2,113 @@ import type { ExperienceEntry, StackGroup } from '@/lib/types';
 
 /**
  * ─────────────────────────────────────────────────────────────────────────────
- * EXPERIENCE  —  PLACEHOLDER TIMELINE
+ * EXPERIENCE  —  from Ryan's resume (Ryan_Ma.pdf)
  * ─────────────────────────────────────────────────────────────────────────────
- * No employer, client or company name is invented here. `organisation` is a
- * generic descriptor and every entry is flagged `placeholder: true`, which
- * renders a visible PLACEHOLDER chip on /experience.
- *
- * TO MAKE THIS REAL: replace `role`, `organisation`, `period`, `summary` and
- * `highlights` with your actual history, then set `placeholder: false`.
+ * The one career record: the homepage timeline and the 3D world's Experience
+ * Archive both read it. Figures are the resume's own. Newest first.
  */
 
 export const experience: ExperienceEntry[] = [
   {
-    id: 'current',
-    role: 'Senior AI / Full-Stack Engineer',
-    organisation: '[PLACEHOLDER] Independent — client engagements',
-    period: '[PLACEHOLDER] Present',
+    id: 'instagram',
+    role: 'Software Engineer',
+    organisation: 'Instagram',
+    period: 'Oct 2025 – Apr 2026',
+    years: '2025 – 2026',
+    location: 'New York City',
     summary:
-      'Designing and building production AI systems, backend services and SaaS platforms for startups and product teams — from a single endpoint through to full system architecture.',
+      'Graph API and Messaging Platform: high-throughput endpoints, Kafka event pipelines and webhooks for business and creator integrations.',
     highlights: [
-      'LLM applications with streaming, structured output, evaluation and cost control',
-      'Agent runtimes with typed tool calling, budgets and full execution traces',
-      'RAG systems with hybrid retrieval, reranking and measured recall',
-      'FastAPI and Node.js services with versioned contracts and typed boundaries',
-      'Deployment, monitoring and production troubleshooting',
+      'Redis response caching with Kafka-driven invalidation for Graph API v21, cutting database read load by 38% and stabilising P99 latency.',
+      'New messaging moderation endpoints (block, unblock, spam routing) that cut developer integration failures by over 25%.',
+      'Led the backend migration of partner integrations from the Basic Display API to the Graph API, with deprecation headers and migration telemetry.',
+      'Structured webhook confirmation events on Kafka consumers, cutting operational support tickets by 20%.',
+      'Multi-asset carousel publishing in the Content Publishing API, launched behind feature flags to beta partners.',
     ],
-    stack: ['Python', 'FastAPI', 'TypeScript', 'Next.js', 'PostgreSQL', 'Redis', 'Docker', 'AWS'],
-    domains: ['ai-systems', 'core-engine', 'infrastructure'],
-    placeholder: true,
+    stack: ['Node.js', 'TypeScript', 'MySQL', 'Redis', 'Kafka'],
+    domains: ['core-engine', 'realtime', 'data'],
+    placeholder: false,
   },
   {
-    id: 'senior-fullstack',
-    role: 'Senior Full-Stack Engineer',
-    organisation: '[PLACEHOLDER] Product company',
-    period: '[PLACEHOLDER] Previous',
-    summary:
-      'Owned backend and frontend architecture for a multi-tenant SaaS product: tenancy and permissions, API design, data modelling and the React/Next.js product surface.',
+    id: 'amazon',
+    role: 'Software Engineer',
+    organisation: 'Amazon',
+    period: 'Aug 2022 – Sep 2025',
+    years: '2022 – 2025',
+    location: 'New York City',
+    summary: 'Real-time in-store ad serving, campaign targeting and advertiser analytics on AWS.',
     highlights: [
-      'Multi-tenant data model with structurally enforced isolation',
-      'Authentication, roles and a permission matrix shared across API and UI',
-      'Usage metering accurate enough to bill from',
-      'Next.js App Router migration with server components by default',
-      'Query optimisation and caching as the dataset grew',
+      'Moved ad serving from polling to push-based scheduling on AWS ECS, cutting server load by over 60% across thousands of in-store displays.',
+      'A pre-aggregated time-series analytics model that cut reporting query latency by over 80%.',
+      'HMAC-signed creative manifests for edge devices, and Redis-backed budget pacing that prevents early budget exhaustion.',
+      'A Kinesis event ingestion pipeline feeding Python processors and RDS for low-latency campaign dashboards.',
+      'Advertiser campaign management and performance dashboards in React with Node.js BFF services.',
     ],
-    stack: ['TypeScript', 'Node.js', 'React', 'Next.js', 'PostgreSQL', 'Redis', 'Prisma'],
-    domains: ['core-engine', 'data', 'frontend'],
-    placeholder: true,
+    stack: ['Python', 'AWS', 'DynamoDB', 'Redis', 'Kinesis', 'React', 'Node.js'],
+    domains: ['core-engine', 'data', 'infrastructure', 'frontend'],
+    placeholder: false,
   },
   {
-    id: 'backend-engineer',
-    role: 'Backend Engineer',
-    organisation: '[PLACEHOLDER] Engineering team',
-    period: '[PLACEHOLDER] Earlier',
+    id: 'tiktok',
+    role: 'Software Engineer',
+    organisation: 'TikTok',
+    period: 'Jul 2020 – Aug 2022',
+    years: '2020 – 2022',
+    location: 'San Francisco Bay Area',
     summary:
-      'Built and operated Python backend services and the realtime layer behind them: APIs, queues, WebSocket fan-out and the deployment pipeline that shipped them.',
+      'Developer platform: the portal, OAuth and webhook infrastructure behind thousands of third-party integrations.',
     highlights: [
-      'REST APIs with generated schemas and contract tests',
-      'Background job pipelines with retries and dead-letter handling',
-      'WebSocket fan-out across multiple instances via Redis pub/sub',
-      'Containerisation and CI/CD for repeatable deploys',
-      'On-call: incident diagnosis, slow queries, memory and connection leaks',
+      'Re-architected the developer portal in React and TypeScript: OAuth setup, webhooks and API credential management.',
+      'Webhook reliability in Go dispatchers on Kafka: exponential backoff and dead-letter queues, so partner outages lost no events.',
+      'Chunked, resumable uploads for multi-gigabyte video publishing, and token lifecycle work in Go: issuance, refresh rotation and audit logging.',
+      'An interactive OAuth flow simulator and sandbox webhook events that cut developer onboarding friction.',
+      'Analytics API layers in Python and configurable partner dashboards in React and Node.js.',
     ],
-    stack: ['Python', 'FastAPI', 'Celery', 'PostgreSQL', 'Redis', 'WebSockets', 'Docker'],
-    domains: ['core-engine', 'realtime', 'infrastructure'],
-    placeholder: true,
-  },
-  {
-    id: 'fullstack-engineer',
-    role: 'Full-Stack Engineer',
-    organisation: '[PLACEHOLDER] Early career',
-    period: '[PLACEHOLDER] Earliest',
-    summary:
-      'Shipped features across the stack on web products — JavaScript and TypeScript frontends, Node and Python backends, relational data models.',
-    highlights: [
-      'Feature delivery end to end, from schema to interface',
-      'Moved a growing JavaScript codebase onto TypeScript',
-      'First exposure to production operations and on-call',
-      'Third-party integrations: payments, email, analytics',
-    ],
-    stack: ['JavaScript', 'TypeScript', 'Node.js', 'React', 'PostgreSQL'],
-    domains: ['frontend', 'core-engine'],
-    placeholder: true,
+    stack: ['React', 'TypeScript', 'Go', 'Python', 'Kafka'],
+    domains: ['frontend', 'core-engine', 'realtime'],
+    placeholder: false,
   },
 ];
 
 /**
- * Capability matrix. `depth` is 1–5 and drives the depth bars on /experience.
- * These are self-assessed — adjust them to be honest about your own level.
+ * Capability matrix: the skills section of the resume, plus the AI work the
+ * projects show. Read by the 3D world's Capability Matrix station.
  */
 export const stackGroups: StackGroup[] = [
   {
-    label: 'AI Systems',
-    domain: 'ai-systems',
-    items: [
-      { name: 'OpenAI API', depth: 5 },
-      { name: 'Claude API', depth: 5 },
-      { name: 'Tool calling', depth: 5 },
-      { name: 'RAG', depth: 5 },
-      { name: 'AI agents', depth: 4 },
-      { name: 'Embeddings', depth: 4 },
-      { name: 'Evaluation', depth: 4 },
-      { name: 'Prompt engineering', depth: 4 },
-    ],
-  },
-  {
     label: 'Backend',
     domain: 'core-engine',
-    items: [
-      { name: 'Python', depth: 5 },
-      { name: 'FastAPI', depth: 5 },
-      { name: 'Node.js', depth: 5 },
-      { name: 'TypeScript', depth: 5 },
-      { name: 'REST APIs', depth: 5 },
-      { name: 'System design', depth: 4 },
-      { name: 'Auth / OAuth', depth: 4 },
-      { name: 'Testing', depth: 4 },
-    ],
-  },
-  {
-    label: 'Data',
-    domain: 'data',
-    items: [
-      { name: 'PostgreSQL', depth: 5 },
-      { name: 'Redis', depth: 5 },
-      { name: 'Query tuning', depth: 4 },
-      { name: 'pgvector', depth: 4 },
-      { name: 'Queues', depth: 4 },
-      { name: 'Data modelling', depth: 4 },
-    ],
-  },
-  {
-    label: 'Realtime',
-    domain: 'realtime',
-    items: [
-      { name: 'WebSockets', depth: 5 },
-      { name: 'SSE / streaming', depth: 4 },
-      { name: 'Pub/sub fan-out', depth: 4 },
-      { name: 'Event-driven design', depth: 4 },
-    ],
-  },
-  {
-    label: 'Infrastructure',
-    domain: 'infrastructure',
-    items: [
-      { name: 'Docker', depth: 5 },
-      { name: 'AWS', depth: 4 },
-      { name: 'CI/CD', depth: 4 },
-      { name: 'Monitoring', depth: 4 },
-      { name: 'Linux', depth: 4 },
-      { name: 'Terraform', depth: 3 },
-    ],
+    items: [{ name: 'Node.js' }, { name: 'Python' }, { name: 'Go' }, { name: 'FastAPI' }, { name: 'Express' }, { name: 'REST APIs' }, { name: 'GraphQL' }, { name: 'gRPC' }, { name: 'Microservices' }],
   },
   {
     label: 'Frontend',
     domain: 'frontend',
-    items: [
-      { name: 'React', depth: 5 },
-      { name: 'Next.js', depth: 5 },
-      { name: 'TypeScript', depth: 5 },
-      { name: 'Tailwind CSS', depth: 4 },
-      { name: 'Accessibility', depth: 4 },
-      { name: 'Web performance', depth: 4 },
-    ],
+    items: [{ name: 'React' }, { name: 'React Native' }, { name: 'Next.js' }, { name: 'TypeScript' }, { name: 'Redux Toolkit' }, { name: 'React Query' }, { name: 'SSR' }],
+  },
+  {
+    label: 'Data & Messaging',
+    domain: 'realtime',
+    items: [{ name: 'Apache Kafka' }, { name: 'Redis' }, { name: 'RabbitMQ' }, { name: 'Apache Spark' }, { name: 'ETL pipelines' }, { name: 'Event-driven architecture' }],
+  },
+  {
+    label: 'Databases',
+    domain: 'data',
+    items: [{ name: 'PostgreSQL' }, { name: 'Amazon Aurora' }, { name: 'DynamoDB' }, { name: 'MySQL' }, { name: 'MongoDB' }],
+  },
+  {
+    label: 'Cloud & DevOps',
+    domain: 'infrastructure',
+    items: [{ name: 'AWS' }, { name: 'Kubernetes' }, { name: 'Docker' }, { name: 'Terraform' }, { name: 'CI/CD' }, { name: 'Jenkins' }, { name: 'GitLab CI' }],
+  },
+  {
+    label: 'AI Systems',
+    domain: 'ai-systems',
+    items: [{ name: 'LLM integration' }, { name: 'AI agents' }, { name: 'RAG' }, { name: 'Computer vision (OpenCV)' }, { name: 'Amazon SageMaker' }],
+  },
+  {
+    label: 'Testing & Observability',
+    domain: 'infrastructure',
+    items: [{ name: 'Jest' }, { name: 'PyTest' }, { name: 'Cypress' }, { name: 'OpenTelemetry' }, { name: 'Prometheus' }, { name: 'Grafana' }, { name: 'ELK Stack' }],
   },
 ];
 
