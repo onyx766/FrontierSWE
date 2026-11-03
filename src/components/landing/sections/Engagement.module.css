@@ -1,0 +1,145 @@
+/*
+ * Ways to work together — the four engagement cards. Pointer effects are for
+ * fine pointers only; these cards are not links, so there is no focus state.
+ * Theme variables carry fallbacks because Tailwind only emits the ones a
+ * utility uses.
+ */
+
+.card {
+  /* This replaces .lp-tilt's transition, so the transform is listed here… */
+  transition:
+    transform 700ms var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)),
+    box-shadow 450ms var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)),
+    border-color 300ms;
+}
+
+/* …and so is <Tilt>'s quick follow while the pointer is moving. */
+.card[data-tilting] {
+  transition:
+    transform 160ms linear,
+    box-shadow 450ms var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)),
+    border-color 300ms;
+}
+
+/* The .lp-gradient-border edge fades in on hover. */
+.card::before {
+  opacity: 0;
+  transition: opacity 500ms var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+/* The card's own glyph, oversized and faint, tucked into the corner. */
+.watermark {
+  position: absolute;
+  top: -1.6rem;
+  right: -1.6rem;
+  width: 8.5rem;
+  height: 8.5rem;
+  color: var(--color-lp-violet, #6d4aff);
+  opacity: 0.06;
+  transform: rotate(-14deg);
+  pointer-events: none;
+  transition:
+    transform 1100ms var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)),
+    opacity 500ms;
+}
+
+/* ── Icon: a disc inside a dashed ring that carries one satellite ─────── */
+
+.iconWrap {
+  position: relative;
+  width: 3.75rem;
+  height: 3.75rem;
+}
+
+.iconRing {
+  position: absolute;
+  inset: 0;
+  border: 1px dashed rgb(124 77 255 / 0.42);
+  border-radius: 50%;
+  transition:
+    transform 1300ms var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)),
+    border-color 300ms;
+}
+
+/* The satellite is what makes the ring's turn visible. */
+.iconRing::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -4px;
+  width: 7px;
+  height: 7px;
+  margin-top: -3.5px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6d4aff, #c084fc);
+  box-shadow:
+    0 0 0 3px #fff,
+    0 0 10px rgb(109 74 255 / 0.55);
+}
+
+.iconDisc {
+  position: absolute;
+  inset: 0.5rem;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: linear-gradient(150deg, #f5f1ff 0%, #ebe4ff 100%);
+  color: var(--color-lp-violet-700, #4a22d6);
+  box-shadow:
+    inset 0 1px 0 #fff,
+    inset 0 0 0 1px rgb(109 74 255 / 0.12),
+    0 10px 22px -12px rgb(109 74 255 / 0.6);
+}
+
+/* The violet fill, faded in (a gradient can't transition as a background). */
+.iconDisc::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(135deg, #4f2ee8 0%, #6d4aff 55%, #9b5cff 100%);
+  opacity: 0;
+  transition: opacity 450ms var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.icon {
+  width: 1.4rem;
+  height: 1.4rem;
+  transition:
+    transform 800ms var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)),
+    color 300ms;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .card:hover {
+    border-color: rgb(109 74 255 / 0.2);
+    box-shadow:
+      0 2px 4px rgb(30 20 80 / 0.04),
+      0 22px 48px -20px rgb(70 45 190 / 0.38);
+  }
+
+  .card:hover::before {
+    opacity: 1;
+  }
+
+  .card:hover .iconRing {
+    border-color: rgb(124 77 255 / 0.75);
+    transform: rotate(360deg);
+  }
+
+  .card:hover .iconDisc::before {
+    opacity: 1;
+  }
+
+  .card:hover .icon {
+    color: #fff;
+    transform: rotate(-10deg) scale(1.08);
+  }
+
+  .card:hover .watermark {
+    opacity: 0.1;
+    transform: rotate(0deg) scale(1.06);
+  }
+}

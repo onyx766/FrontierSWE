@@ -1,0 +1,61 @@
+.strip {
+  border-radius: 1.25rem;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.96), rgb(255 255 255 / 0.88)),
+    #fff;
+}
+
+.cell {
+  transition: background-color 300ms;
+}
+
+.cell:hover {
+  background-color: var(--color-lp-surface-2);
+}
+
+/* Hairline dividers between cells on the single-row layout. */
+@media (min-width: 1024px) {
+  .cell + .cell::before {
+    content: '';
+    position: absolute;
+    top: 24%;
+    bottom: 24%;
+    left: 0;
+    width: 1px;
+    background: var(--color-lp-line);
+  }
+}
+
+.badge {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 0.85rem;
+  perspective: 300px;
+  transition:
+    border-color 300ms,
+    box-shadow 300ms,
+    transform 500ms var(--ease-out-expo);
+}
+
+.icon {
+  transition: transform 700ms var(--ease-out-expo);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .cell:hover .badge {
+    border-color: rgb(109 74 255 / 0.35);
+    box-shadow: 0 10px 22px -12px rgb(109 74 255 / 0.55);
+    transform: translateY(-2px);
+  }
+
+  /* A full turn about the vertical axis: reads as the icon flipping over. */
+  .cell:hover .icon {
+    transform: rotateY(360deg);
+  }
+}

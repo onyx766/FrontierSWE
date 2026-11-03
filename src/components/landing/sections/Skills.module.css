@@ -1,0 +1,670 @@
+/*
+ * Skills — the tab row, the selected stack's panel, and the cube in the
+ * heading column. The tab row is laid out by its own width (a container
+ * query), because the column it sits in changes width at lg and xl.
+ * Pointer effects are for fine pointers only. Theme variables carry
+ * fallbacks because Tailwind only emits the ones a utility uses.
+ */
+
+.section {
+  --sk-violet: var(--color-lp-violet, #6d4aff);
+  --sk-violet-600: var(--color-lp-violet-600, #5b34f0);
+  --sk-violet-700: var(--color-lp-violet-700, #4a22d6);
+  --sk-ink: var(--color-lp-ink, #0e0c22);
+  --sk-ink-2: var(--color-lp-ink-2, #2a2742);
+  --sk-body: var(--color-lp-body, #4f4b68);
+  --sk-muted: var(--color-lp-muted, #6f6b8a);
+  --sk-line: var(--color-lp-line, #e8e5f3);
+  --sk-tint: var(--color-lp-tint, #efeafe);
+  --sk-expo: var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1));
+  --sk-soft: var(--ease-in-out-soft, cubic-bezier(0.4, 0, 0.2, 1));
+  --sk-shadow-sm: var(
+    --shadow-lp-sm,
+    0 1px 2px rgb(30 20 80 / 0.05),
+    0 6px 16px -8px rgb(60 40 160 / 0.14)
+  );
+  --sk-shadow-md: var(
+    --shadow-lp-md,
+    0 2px 4px rgb(30 20 80 / 0.04),
+    0 16px 36px -14px rgb(70 45 190 / 0.26)
+  );
+  isolation: isolate;
+}
+
+/* A soft violet bloom behind the panel, so the band reads as one piece. */
+.section::before {
+  content: '';
+  position: absolute;
+  top: 18%;
+  right: -12%;
+  z-index: -1;
+  width: min(48rem, 90vw);
+  height: 30rem;
+  background: radial-gradient(closest-side, rgb(155 92 255 / 0.11), transparent);
+  pointer-events: none;
+}
+
+/* ── Tab row ─────────────────────────────────────────────────────────────── */
+
+.tabs {
+  container-type: inline-size;
+}
+
+/* Narrow: the row scrolls sideways under a fade, bleeding to the screen edges
+   (the bleed matches .lp-container's phone padding). */
+.scroller {
+  position: relative;
+  margin: -0.5rem -1.25rem 0;
+  padding: 0.5rem 1.25rem 0.9rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 1.25rem;
+  scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 1.25rem, #000 calc(100% - 1.25rem), transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 1.25rem, #000 calc(100% - 1.25rem), transparent);
+}
+
+.scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.tablist {
+  display: flex;
+  gap: 0.625rem;
+  width: max-content;
+}
+
+.tab {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 0.7rem;
+  width: 11.75rem;
+  padding: 0.75rem 0.8rem;
+  border: 1px solid var(--sk-line);
+  border-radius: 1rem;
+  background-color: #fff;
+  box-shadow: var(--sk-shadow-sm);
+  color: var(--sk-ink);
+  text-align: left;
+  cursor: pointer;
+  /* Centre, to agree with the script, which centres the chosen tab. */
+  scroll-snap-align: center;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform 450ms var(--sk-expo),
+    box-shadow 450ms var(--sk-expo),
+    border-color 300ms;
+}
+
+/* The selected fill, faded in (a gradient can't transition as a background).
+   It stops at #7f52ff, not the lighter #9b5cff, so white text keeps 4.5:1;
+   the sheen sits top-left, over the icon, where the fill is darkest. */
+.tab::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  background:
+    radial-gradient(90% 110% at 0% 0%, rgb(255 255 255 / 0.16), transparent 60%),
+    linear-gradient(110deg, #4f2ee8 0%, #6d4aff 58%, #7f52ff 100%);
+  opacity: 0;
+  transition: opacity 400ms var(--sk-expo);
+}
+
+/* A small notch under the selected tab, pointing at its panel. */
+.tab::after {
+  content: '';
+  position: absolute;
+  bottom: -0.3rem;
+  left: 50%;
+  z-index: -1;
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 0.15rem;
+  background: #6d4aff;
+  opacity: 0;
+  transform: translateX(-50%) rotate(45deg) scale(0.4);
+  transition:
+    opacity 300ms,
+    transform 500ms var(--sk-expo);
+}
+
+.tab[aria-selected='true'] {
+  border-color: transparent;
+  box-shadow: 0 16px 32px -14px rgb(91 52 240 / 0.75);
+  color: #fff;
+}
+
+.tab[aria-selected='true']::before {
+  opacity: 1;
+}
+
+.tab[aria-selected='true']::after {
+  opacity: 1;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.tabIcon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.75rem;
+  background-color: var(--sk-tint);
+  color: var(--sk-violet-600);
+  box-shadow: inset 0 0 0 1px rgb(109 74 255 / 0.12);
+  transition:
+    transform 900ms var(--sk-expo),
+    background-color 300ms,
+    color 300ms,
+    box-shadow 300ms;
+}
+
+.tab[aria-selected='true'] .tabIcon {
+  background-color: rgb(255 255 255 / 0.18);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.28);
+  color: #fff;
+}
+
+.tabText {
+  min-width: 0;
+}
+
+.tabLabel {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.tabCaption {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--sk-muted);
+  font-size: 0.6875rem;
+  line-height: 1.3;
+  transition: color 300ms;
+}
+
+/* Solid white: any translucency drops below 4.5:1 at the light end of the fill. */
+.tab[aria-selected='true'] .tabCaption {
+  color: #fff;
+}
+
+/* Medium: one row of equal tabs, icon above the words. */
+@container (min-width: 36rem) {
+  .scroller {
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    scroll-snap-type: none;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .tablist {
+    display: grid;
+    grid-auto-columns: minmax(0, 1fr);
+    grid-auto-flow: column;
+    gap: 0.5rem;
+    width: auto;
+  }
+
+  .tab {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.65rem;
+    width: auto;
+    padding: 0.8rem 0.7rem 0.85rem;
+  }
+
+  .tabLabel {
+    font-size: min(0.875rem, 2.05cqi);
+  }
+}
+
+/* Wide: icon beside the words, as in the design. Sized so the longest
+   caption still fits on one line at the xl column width. */
+@container (min-width: 55rem) {
+  .tab {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.75rem 0.65rem;
+  }
+
+  .tabIcon {
+    width: 2.125rem;
+    height: 2.125rem;
+  }
+
+  .tabLabel {
+    font-size: 0.84rem;
+  }
+
+  .tabCaption {
+    font-size: 0.64rem;
+  }
+}
+
+/* ── Panel ───────────────────────────────────────────────────────────────── */
+
+.panel {
+  position: relative;
+  margin-top: 0.9rem;
+  padding: 1.35rem 1.25rem 1.25rem;
+  overflow: hidden;
+  border: 1px solid rgb(109 74 255 / 0.16);
+  border-radius: 1.375rem;
+  background:
+    radial-gradient(70% 120% at 100% 0%, rgb(155 92 255 / 0.11), transparent 62%),
+    radial-gradient(50% 80% at 0% 100%, rgb(96 165 250 / 0.07), transparent 70%),
+    linear-gradient(180deg, #faf8ff 0%, #f3efff 100%);
+  box-shadow: var(--sk-shadow-sm);
+}
+
+/* With JavaScript the tabs show one panel at a time; without it they are
+   hidden and every panel stays on the page, stacked. */
+:global(html[data-js]) .panel[data-active='false'] {
+  display: none;
+}
+
+:global(html:not([data-js])) .scroller {
+  display: none;
+}
+
+.panelGrid {
+  display: grid;
+  gap: 1.4rem;
+}
+
+.panelCopy {
+  min-width: 0;
+}
+
+.panelHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+/* A shade darker than lp-muted: the panel's violet bloom sits behind it. */
+.panelCount {
+  flex: none;
+  color: #625e7d;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  line-height: 1;
+}
+
+.panelTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.03em;
+}
+
+.dot {
+  position: relative;
+  flex: none;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 999px;
+  background-color: var(--sk-violet);
+  box-shadow: 0 0 0 4px rgb(109 74 255 / 0.14);
+}
+
+/* A slow pulse: "this is live". Its last frame is invisible, so under reduced
+   motion (run once, instantly) only the dot remains. */
+.dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-color: var(--sk-violet);
+  animation: sk-pulse 2.6s var(--sk-expo) infinite;
+}
+
+.panelText {
+  max-width: 36ch;
+  margin-top: 0.6rem;
+  color: var(--sk-body);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+.highlights {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 1.1rem;
+}
+
+.highlight {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  color: var(--sk-ink-2);
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.check {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.05rem;
+  border-radius: 999px;
+  background-color: #fff;
+  box-shadow: inset 0 0 0 1px rgb(109 74 255 / 0.3);
+  color: var(--sk-violet-600);
+}
+
+/* ── Tool tiles ──────────────────────────────────────────────────────────── */
+
+.tools {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.tool {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 5.5rem;
+  padding: 0.75rem 0.35rem;
+  border: 1px solid var(--sk-line);
+  border-radius: 1rem;
+  background-color: #fff;
+  box-shadow: var(--sk-shadow-sm);
+  text-align: center;
+  transition:
+    transform 450ms var(--sk-expo),
+    box-shadow 450ms var(--sk-expo),
+    border-color 300ms;
+}
+
+.toolGlyph {
+  display: grid;
+  place-items: center;
+  transition: transform 900ms var(--sk-expo);
+}
+
+.toolName {
+  color: var(--sk-ink-2);
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+@container (min-width: 36rem) {
+  .panel {
+    padding: 1.6rem 1.6rem 1.6rem 1.75rem;
+  }
+
+  .panelGrid {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 1.75rem;
+  }
+
+  .tools {
+    grid-template-columns: repeat(3, 5.6rem);
+    padding-left: 1.75rem;
+    border-left: 1px dashed rgb(109 74 255 / 0.25);
+  }
+
+  .tool {
+    min-height: 5.6rem;
+  }
+}
+
+/* ── Changing tabs ───────────────────────────────────────────────────────────
+   A panel is display:none until chosen, and showing it restarts these, so
+   they play on every change. `backwards` fill: once finished they let go, and
+   hover transforms work as normal. */
+
+.tabs[data-animate] .panel[data-active='true'] :is(.panelHead, .panelText) {
+  animation: sk-rise 650ms var(--sk-expo) backwards;
+}
+
+.tabs[data-animate] .panel[data-active='true'] .panelText {
+  animation-delay: 60ms;
+}
+
+.tabs[data-animate] .panel[data-active='true'] .highlight {
+  animation: sk-rise 650ms var(--sk-expo) backwards;
+  animation-delay: calc(120ms + var(--i, 0) * 60ms);
+}
+
+.tabs[data-animate] .panel[data-active='true'] .tool {
+  animation: sk-pop 750ms var(--sk-expo) backwards;
+  animation-delay: calc(60ms + var(--i, 0) * 55ms);
+}
+
+/* The newly selected tab's icon flips in. */
+.tabs[data-animate] .tab[aria-selected='true'] .tabIcon {
+  animation: sk-flip-in 800ms var(--sk-expo);
+}
+
+/* ── Hover (fine pointers) ───────────────────────────────────────────────── */
+
+@media (hover: hover) and (pointer: fine) {
+  .tab:not([aria-selected='true']):hover {
+    border-color: rgb(109 74 255 / 0.4);
+    box-shadow: var(--sk-shadow-md);
+    transform: translateY(-3px);
+  }
+
+  .tab:not([aria-selected='true']):hover .tabIcon {
+    background-color: #e6dfff;
+    transform: perspective(300px) rotateY(360deg);
+  }
+
+  .tool:hover {
+    border-color: rgb(109 74 255 / 0.35);
+    box-shadow: var(--sk-shadow-md);
+    transform: translateY(-4px);
+  }
+
+  .tool:hover .toolGlyph {
+    transform: rotate(360deg) scale(1.1);
+  }
+}
+
+/* ── Cube (heading column) ───────────────────────────────────────────────── */
+
+.cubeStage {
+  --cube: 6.25rem;
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  max-width: 14rem;
+  height: 13.5rem;
+  perspective: 900px;
+}
+
+.cubeHalo {
+  position: absolute;
+  inset: 8% 4% 14%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(155 92 255 / 0.18), rgb(155 92 255 / 0.05) 60%, transparent);
+}
+
+/* An idle bob and sway; its last frame is the rest pose. */
+.cubeFloat {
+  transform-style: preserve-3d;
+  animation: sk-float 7s var(--sk-soft) infinite;
+}
+
+.cube {
+  position: relative;
+  width: var(--cube);
+  height: var(--cube);
+  transform-style: preserve-3d;
+  /* A little overshoot, so the turn lands like something with weight. */
+  transition: transform 1150ms cubic-bezier(0.3, 1.3, 0.45, 1);
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border: 1px solid rgb(109 74 255 / 0.22);
+  border-radius: 0.55rem;
+  background: linear-gradient(150deg, #ffffff 0%, #f1ecff 100%);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.7);
+  color: var(--sk-violet-600);
+  backface-visibility: hidden;
+  transition:
+    color 500ms,
+    border-color 500ms;
+}
+
+/* The selected face: the violet fill, laid over the white so it can fade. */
+.face::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  background:
+    radial-gradient(120% 90% at 100% 0%, rgb(255 255 255 / 0.2), transparent 55%),
+    linear-gradient(135deg, #4f2ee8 0%, #6d4aff 55%, #9b5cff 100%);
+  opacity: 0;
+  transition: opacity 600ms var(--sk-expo);
+}
+
+.face[data-active='true'] {
+  border-color: transparent;
+  color: #fff;
+}
+
+.face[data-active='true']::before {
+  opacity: 1;
+}
+
+.face[data-face='0'] {
+  transform: translateZ(calc(var(--cube) / 2));
+}
+
+.face[data-face='1'] {
+  transform: rotateY(90deg) translateZ(calc(var(--cube) / 2));
+}
+
+.face[data-face='2'] {
+  transform: rotateY(180deg) translateZ(calc(var(--cube) / 2));
+}
+
+.face[data-face='3'] {
+  transform: rotateY(270deg) translateZ(calc(var(--cube) / 2));
+}
+
+.face[data-face='4'] {
+  transform: rotateX(90deg) translateZ(calc(var(--cube) / 2));
+}
+
+.face[data-face='5'] {
+  transform: rotateX(-90deg) translateZ(calc(var(--cube) / 2));
+}
+
+.faceLabel {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.cubeShadow {
+  position: absolute;
+  bottom: 0.6rem;
+  left: 50%;
+  width: 8.5rem;
+  height: 1.4rem;
+  margin-left: -4.25rem;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(60 36 170 / 0.3), transparent);
+  animation: sk-shadow 7s var(--sk-soft) infinite;
+}
+
+/* ── Keyframes ───────────────────────────────────────────────────────────── */
+
+@keyframes sk-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+@keyframes sk-pop {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.9);
+  }
+}
+
+@keyframes sk-flip-in {
+  from {
+    transform: perspective(300px) rotateY(-180deg);
+  }
+}
+
+@keyframes sk-pulse {
+  0% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  80%,
+  100% {
+    opacity: 0;
+    transform: scale(2.8);
+  }
+}
+
+@keyframes sk-float {
+  0%,
+  100% {
+    transform: translateY(0) rotateY(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotateY(9deg);
+  }
+}
+
+@keyframes sk-shadow {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(0.82);
+  }
+}

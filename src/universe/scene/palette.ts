@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import type { IslandAccent } from '@/data/universe';
 
 /**
- * The world's colours. The homepage deliberately leaves the site's single-accent
+ * The world's colours. The 3D world deliberately leaves the site's single-accent
  * rule behind: it follows the Engineering Universe art direction, in which
  * electric blue and violet read as cool data and orange reads as warm energy.
  */

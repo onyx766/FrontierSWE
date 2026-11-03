@@ -1,0 +1,210 @@
+/*
+ * Services — the five service cards, and their link to the orbit in the
+ * heading column. The active treatment runs for fine pointers, on hover or
+ * on keyboard focus (:focus-within); the focus ring itself is always drawn.
+ * Theme variables carry fallbacks because Tailwind only emits the ones a
+ * utility uses.
+ */
+
+/* ── Card ──────────────────────────────────────────────────────────────── */
+
+.card {
+  /* This replaces .lp-tilt's transition, so the transform is listed here… */
+  transition:
+    transform 700ms var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)),
+    box-shadow 450ms var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)),
+    border-color 300ms;
+}
+
+/* …and so is <Tilt>'s quick follow while the pointer is moving. */
+.card[data-tilting] {
+  transition:
+    transform 160ms linear,
+    box-shadow 450ms var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)),
+    border-color 300ms;
+}
+
+/* The .lp-gradient-border edge only shows while the card is active. */
+.card::before {
+  opacity: 0;
+  transition: opacity 500ms var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.featured {
+  border-color: rgb(124 92 255 / 0.5);
+  background: linear-gradient(165deg, #f3efff 0%, #ece5ff 55%, #f5f1ff 100%);
+  box-shadow:
+    0 1px 2px rgb(30 20 80 / 0.05),
+    0 18px 38px -22px rgb(109 74 255 / 0.65);
+}
+
+/* ── Icon tile: tinted square; fills violet and spins a full turn ─────── */
+
+.iconBox {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.8rem;
+  background-color: var(--color-lp-tint, #efeafe);
+  color: var(--color-lp-violet-700, #4a22d6);
+  box-shadow: inset 0 0 0 1px rgb(109 74 255 / 0.1);
+}
+
+/* The violet fill, faded in (a gradient can't transition as a background). */
+.iconBox::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(135deg, #4f2ee8 0%, #6d4aff 55%, #9b5cff 100%);
+  box-shadow: 0 10px 20px -10px rgb(91 52 240 / 0.8);
+  opacity: 0;
+  transition: opacity 400ms var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.iconGlyph {
+  width: 1.25rem;
+  height: 1.25rem;
+  transition:
+    transform 900ms var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)),
+    color 300ms;
+}
+
+.featured .iconBox::before {
+  opacity: 1;
+}
+
+.featured .iconGlyph {
+  color: #fff;
+}
+
+/* ── Arrow: always shown on touch; slides in on hover for fine pointers ── */
+
+.arrow {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 1px solid var(--color-lp-line, #e8e5f3);
+  border-radius: 999px;
+  background-color: #fff;
+  color: var(--color-lp-violet-700, #4a22d6);
+  transition:
+    opacity 350ms,
+    transform 550ms var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)),
+    background-color 300ms,
+    border-color 300ms,
+    color 300ms;
+}
+
+.featured .arrow {
+  border-color: transparent;
+  background-color: var(--color-lp-violet-600, #5b34f0);
+  color: #fff;
+}
+
+/* ── Title link, stretched over the whole card ─────────────────────────
+   One short accessible name ("SaaS Development") instead of the whole card
+   read as a link; the ::after makes every pixel of the card clickable. */
+
+.titleLink {
+  transition: color 250ms;
+}
+
+.titleLink::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: var(--radius-lp, 1.125rem);
+}
+
+.titleLink:focus-visible {
+  outline: none;
+}
+
+.titleLink:focus-visible::after {
+  outline: 2px solid var(--color-lp-violet, #6d4aff);
+  outline-offset: 3px;
+}
+
+/* ── Active state ────────────────────────────────────────────────────── */
+
+@media (hover: hover) and (pointer: fine) {
+  .card:is(:hover, :focus-within) {
+    border-color: rgb(109 74 255 / 0.22);
+    box-shadow:
+      0 2px 4px rgb(30 20 80 / 0.04),
+      0 18px 40px -16px rgb(70 45 190 / 0.34);
+  }
+
+  .featured:is(:hover, :focus-within) {
+    box-shadow:
+      0 2px 4px rgb(30 20 80 / 0.04),
+      0 22px 44px -18px rgb(109 74 255 / 0.6);
+  }
+
+  .card:is(:hover, :focus-within)::before {
+    opacity: 1;
+  }
+
+  .card:is(:hover, :focus-within) .iconBox::before {
+    opacity: 1;
+  }
+
+  .card:is(:hover, :focus-within) .iconGlyph {
+    color: #fff;
+    transform: rotate(360deg);
+  }
+
+  .card:is(:hover, :focus-within) .titleLink {
+    color: var(--color-lp-violet-700, #4a22d6);
+  }
+
+  .arrow {
+    opacity: 0;
+    transform: translateX(-0.6rem) scale(0.75);
+  }
+
+  .featured .arrow,
+  .card:is(:hover, :focus-within) .arrow {
+    opacity: 1;
+    transform: none;
+  }
+
+  .card:is(:hover, :focus-within) .arrow {
+    border-color: transparent;
+    background-color: var(--color-lp-violet-600, #5b34f0);
+    color: #fff;
+  }
+
+  /* ── The orbit in the heading column answers the hovered card ───────── */
+
+  .section:has([data-svc]:is(:hover, :focus-within)) [data-orbit-spin] {
+    animation-play-state: paused;
+  }
+
+  .section:has([data-svc]:is(:hover, :focus-within)) [data-svc-sat] {
+    opacity: 0.45;
+  }
+
+  .section:has([data-svc='0']:is(:hover, :focus-within)) [data-svc-sat='0'],
+  .section:has([data-svc='1']:is(:hover, :focus-within)) [data-svc-sat='1'],
+  .section:has([data-svc='2']:is(:hover, :focus-within)) [data-svc-sat='2'],
+  .section:has([data-svc='3']:is(:hover, :focus-within)) [data-svc-sat='3'],
+  .section:has([data-svc='4']:is(:hover, :focus-within)) [data-svc-sat='4'],
+  .section:has([data-svc='5']:is(:hover, :focus-within)) [data-svc-sat='5'] {
+    border-color: transparent;
+    background-color: var(--color-lp-violet-600, #5b34f0);
+    color: #fff;
+    opacity: 1;
+    scale: 1.2;
+    box-shadow: 0 10px 22px -8px rgb(91 52 240 / 0.75);
+  }
+}

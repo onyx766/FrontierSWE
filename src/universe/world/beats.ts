@@ -5,7 +5,7 @@ import { getProject, statusLabels } from '@/data/projects';
 import { services, smallTasks } from '@/data/services';
 import type { StationContent } from '@/data/universe';
 import type { ArchitectureSpec, CaseStudyMetric, Project } from '@/lib/types';
-import { domainHref } from '@/data/site';
+import { domainHref, sectionHref } from '@/data/site';
 
 /**
  * What the robot says at each station.
@@ -74,7 +74,7 @@ export function firstSentences(text: string, limit = 200): string {
 
 function projectBriefing(station: StationContent, project: Project): Briefing {
   const study = project.caseStudy;
-  const href = `/projects/${project.slug}`;
+  const href = sectionHref.projects;
 
   return {
     stationId: station.id,
@@ -128,7 +128,7 @@ function projectBriefing(station: StationContent, project: Project): Briefing {
         title: 'Where it ended up',
         body: study.result,
         metrics: study.metrics,
-        link: { label: 'Read the full case study', href },
+        link: { label: 'Back to the projects', href },
         speech: firstSentences(study.result),
       },
     ],
@@ -179,7 +179,7 @@ function welcomeBriefing(station: StationContent): Briefing {
         kicker: profile.role,
         title: profile.tagline,
         body: profile.availability.detail,
-        link: { label: 'Start a project', href: '/start-project' },
+        link: { label: 'Start a project', href: sectionHref.contact },
         speech: `I am the guide to ${profile.name}'s engineering universe. ${profile.tagline}`,
       },
     ],
@@ -200,7 +200,7 @@ function careerBriefing(station: StationContent): Briefing {
       bullets: entry.highlights.slice(0, 4),
       chips: entry.stack,
       ...(index === experience.length - 1
-        ? { link: { label: 'See the full timeline', href: '/experience' } }
+        ? { link: { label: 'See the full timeline', href: sectionHref.experience } }
         : {}),
       speech: firstSentences(entry.summary),
     })),
@@ -222,7 +222,7 @@ function capabilitiesBriefing(station: StationContent): Briefing {
           title: group.label,
           body: group.items.map((item) => item.name).join(' · '),
         })),
-        link: { label: 'See the capability matrix', href: '/experience' },
+        link: { label: 'See the capability matrix', href: sectionHref.experience },
         speech: `${profile.yearsExperience} years across ${stackGroups
           .map((group) => group.label)
           .join(', ')}.`,
@@ -243,7 +243,7 @@ function aboutBriefing(station: StationContent): Briefing {
         kicker: profile.availability.label,
         title: profile.tagline,
         body: profile.availability.detail,
-        link: { label: 'More about how I work', href: '/about' },
+        link: { label: 'More about how I work', href: sectionHref.about },
         speech: `${profile.name} is a ${profile.role} with ${profile.yearsExperience} years of experience.`,
       },
     ],
@@ -262,7 +262,7 @@ function principlesBriefing(station: StationContent): Briefing {
         kicker: 'Principles',
         title: station.title,
         items: principles.slice(0, 4),
-        link: { label: 'Read all of them', href: '/about' },
+        link: { label: 'Read all of them', href: sectionHref.about },
         speech: firstSentences(principles[0]?.body ?? ''),
       },
     ],
@@ -284,7 +284,7 @@ function servicesBriefing(station: StationContent): Briefing {
           title: service.title,
           body: `${service.summary} Typically ${service.typicalScope}.`,
         })),
-        link: { label: 'See all services', href: '/services' },
+        link: { label: 'See all services', href: sectionHref.services },
         speech: firstSentences(services[0]?.summary ?? ''),
       },
       {
@@ -295,7 +295,7 @@ function servicesBriefing(station: StationContent): Briefing {
           title: task.title,
           body: `${task.description} Usually ${task.turnaround}.`,
         })),
-        link: { label: 'Start a project', href: '/start-project' },
+        link: { label: 'Start a project', href: sectionHref.contact },
         speech: firstSentences(smallTasks[0]?.description ?? ''),
       },
     ],

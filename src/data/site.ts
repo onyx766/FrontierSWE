@@ -1,6 +1,6 @@
 import type { DomainId } from '@/lib/types';
 
-export const SITE_NAME = 'Ryan // Engineering Universe';
+export const SITE_NAME = 'Ryan // Engineering Network';
 export const SITE_SHORT_NAME = 'Ryan';
 export const SITE_DESCRIPTION =
   'Senior AI / Full-Stack Engineer. Production AI systems, scalable backends, SaaS products. 8+ years. Available for projects.';
@@ -15,49 +15,35 @@ export interface NavItem {
   href: string;
 }
 
+/**
+ * The site is one page: every destination is a section of the homepage.
+ * Used by the 3D world's top bar, which links back into those sections.
+ */
 export const navItems: NavItem[] = [
-  { label: 'System', href: '/system' },
-  { label: 'Projects', href: '/projects' },
-  { label: 'Services', href: '/services' },
-  { label: 'Experience', href: '/experience' },
-  { label: 'About', href: '/about' },
+  { label: 'Projects', href: '/#projects' },
+  { label: 'Experience', href: '/#experience' },
+  { label: 'Skills', href: '/#skills' },
+  { label: 'Services', href: '/#services' },
+  { label: 'About', href: '/#about' },
 ];
 
-export const footerColumns: { label: string; items: NavItem[] }[] = [
-  {
-    label: 'Network',
-    items: [
-      { label: 'Core Engine', href: '/system/core-engine' },
-      { label: 'AI Systems', href: '/system/ai-systems' },
-      { label: 'Data', href: '/system/data' },
-      { label: 'Realtime', href: '/system/realtime' },
-      { label: 'Infrastructure', href: '/system/infrastructure' },
-      { label: 'Frontend', href: '/system/frontend' },
-    ],
-  },
-  {
-    label: 'Site',
-    items: [
-      { label: 'Projects', href: '/projects' },
-      { label: 'Services', href: '/services' },
-      { label: 'Experience', href: '/experience' },
-      { label: 'About', href: '/about' },
-      { label: 'Start a project', href: '/start-project' },
-    ],
-  },
-];
+/** Homepage sections the 3D world links back to. */
+export const sectionHref = {
+  projects: '/#projects',
+  experience: '/#experience',
+  services: '/#services',
+  about: '/#about',
+  architecture: '/#architecture',
+  contact: '/#contact',
+} as const;
 
 /** Routes that should appear in the sitemap with their relative priority. */
 export const staticRoutes: { path: string; priority: number }[] = [
   { path: '/', priority: 1 },
-  { path: '/system', priority: 0.9 },
-  { path: '/projects', priority: 0.9 },
-  { path: '/services', priority: 0.9 },
-  { path: '/start-project', priority: 0.9 },
-  { path: '/experience', priority: 0.7 },
-  { path: '/about', priority: 0.7 },
+  { path: '/world', priority: 0.6 },
 ];
 
-export function domainHref(id: DomainId): string {
-  return `/system/${id}`;
+/** Engineering areas have no pages of their own; they are covered under Skills. */
+export function domainHref(_id: DomainId): string {
+  return '/#skills';
 }

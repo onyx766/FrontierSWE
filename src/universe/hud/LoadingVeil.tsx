@@ -55,9 +55,9 @@ export function LoadingVeil() {
         {slow ? (
           <p className="uh-loader-slow">
             {hudCopy.loading.slow}{' '}
-            <Link href="/system">{hudCopy.failure.system}</Link>
+            <Link href="/">{hudCopy.failure.system}</Link>
             {' · '}
-            <Link href="/projects">{hudCopy.failure.projects}</Link>
+            <Link href="/#projects">{hudCopy.failure.projects}</Link>
           </p>
         ) : null}
       </div>

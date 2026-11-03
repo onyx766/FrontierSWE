@@ -1,13 +1,24 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { Component, useCallback, useEffect, useState, type ReactNode } from 'react';
+import { useSearchParams } from 'next/navigation';
+import {
+  Component,
+  Suspense,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
+import { WORLD_AT_PARAM } from '@/data/universe';
 import { UniverseHud } from './hud/UniverseHud';
 import { useContextLossWatch, useEnvironmentSync, useWebglGate } from './hud/useLifecycle';
+import { knownStation, placeRobotAtStation } from './state/arrival';
 import { useUniverse } from './state/store';
 
 /**
- * The homepage experience: the 3D scene behind the DOM HUD.
+ * The 3D world at `/world`: the scene behind the DOM HUD.
  *
  * The scene is code-split with `ssr: false` and nothing else here depends on
  * it, so the HUD, including the page's <h1> and its links, is in the first HTML
@@ -40,6 +51,34 @@ class SceneBoundary extends Component<
   }
 }
 
+/**
+ * `?at=<station>` from a "View in 3D" link. Read through `useSearchParams`,
+ * because on client navigation `window.location` still holds the previous URL
+ * while the new page renders. Rendered before the scene, so the robot is on the
+ * pad before the actor layer places it; the briefing opens once the scene
+ * reports ready. The query is then dropped, so a reload or a later Back does not
+ * yank the robot again.
+ */
+function RequestedArrival() {
+  const at = useSearchParams().get(WORLD_AT_PARAM);
+  const [requested] = useState(() => {
+    const id = knownStation(at);
+    if (id && typeof window !== 'undefined') placeRobotAtStation(id);
+    return id;
+  });
+  const ready = useUniverse((state) => state.ready);
+  const handled = useRef(false);
+
+  useEffect(() => {
+    if (!requested || !ready || handled.current) return;
+    handled.current = true;
+    useUniverse.getState().arriveAt(requested);
+    window.history.replaceState(window.history.state, '', window.location.pathname);
+  }, [requested, ready]);
+
+  return null;
+}
+
 export function UniverseStage() {
   useEnvironmentSync();
   const webglAvailable = useWebglGate();
@@ -55,6 +94,10 @@ export function UniverseStage() {
 
   return (
     <div className="fixed inset-0 overflow-hidden bg-[#02040b]">
+      {/* The query only exists in the browser; the static HTML renders without it. */}
+      <Suspense fallback={null}>
+        <RequestedArrival />
+      </Suspense>
       {/* `isolate` keeps DOM that drei projects from the scene beneath the HUD. */}
       <div className="absolute inset-0 isolate">
         {webglAvailable && !crashed ? (

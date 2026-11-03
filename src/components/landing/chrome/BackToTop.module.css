@@ -1,0 +1,262 @@
+/*
+ * The floating "back to top" control.
+ *
+ * Hidden: shrunk, turned back a third of a turn, transparent and
+ * `visibility: hidden` (the markup also makes it inert), so it springs in
+ * with a spin. Hovered with a fine pointer: it lifts, the progress ring
+ * glows, a dotted orbit fades in and turns with a satellite riding it, a
+ * label slides out, and the arrow launches out of the top and lands back in
+ * from below. Keyboard focus gets the glow and the label. Each animation
+ * ends where it began or at the hover pose, so the reduced-motion rule (one
+ * instant iteration) leaves a sensible still frame.
+ */
+
+.button {
+  position: fixed;
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 1px solid var(--color-lp-line);
+  border-radius: 999px;
+  background-color: rgb(255 255 255 / 0.86);
+  color: var(--color-lp-ink);
+  box-shadow: var(--shadow-lp-md);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  backdrop-filter: blur(14px) saturate(1.4);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(0.75rem) scale(0.5) rotate(-120deg);
+  transition:
+    opacity 300ms var(--ease-out-expo),
+    transform 750ms var(--ease-out-expo),
+    visibility 0s linear 750ms,
+    border-color 300ms,
+    box-shadow 450ms var(--ease-out-expo),
+    color 200ms;
+}
+
+@media (min-width: 768px) {
+  .button {
+    right: 1.75rem;
+    bottom: 1.75rem;
+    width: 3.125rem;
+    height: 3.125rem;
+  }
+}
+
+.button[data-shown] {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: none;
+  transition-delay: 0s;
+}
+
+@media print {
+  .button {
+    display: none;
+  }
+}
+
+/* ── Progress ring ─────────────────────────────────────────────────────────
+   The 64-unit viewBox is the 48-unit button plus 8 on every side, so the
+   SVG overhangs the button by a sixth of its size in each direction. */
+
+.ring {
+  position: absolute;
+  top: -16.6667%;
+  left: -16.6667%;
+  width: 133.3333%;
+  height: 133.3333%;
+  overflow: visible;
+  pointer-events: none;
+  transition: filter 400ms var(--ease-out-expo);
+}
+
+.track {
+  fill: none;
+  stroke: var(--color-lp-line-strong);
+  stroke-width: 2;
+}
+
+.arc {
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+/* ── Arrow ─────────────────────────────────────────────────────────────── */
+
+/* Clips the arrow's launch to a disc inside the ring. */
+.face {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 64%;
+  height: 64%;
+  overflow: hidden;
+  border-radius: 999px;
+}
+
+.arrow {
+  width: 1.05rem;
+  height: 1.05rem;
+  transition: transform 450ms var(--ease-out-expo);
+}
+
+/* ── Orbit: a dotted ring that turns, with a satellite riding it ─────── */
+
+.orbit {
+  position: absolute;
+  inset: -7px;
+  border-radius: 999px;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.82) rotate(-60deg);
+  transition:
+    opacity 300ms var(--ease-out-expo),
+    transform 700ms var(--ease-out-expo);
+}
+
+/* Dashes from a repeating conic gradient, masked down to a thin band at the rim. */
+.orbit::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: repeating-conic-gradient(rgb(109 74 255 / 0.5) 0deg 3deg, transparent 3deg 12deg);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 1.5px), #000 calc(100% - 1px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 1.5px), #000 calc(100% - 1px));
+  animation: spin 14s linear infinite;
+  animation-play-state: paused;
+}
+
+/* The satellite: a dot at the top of a disc that turns faster than the dashes. */
+.orbit::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle at 50% 3.75px,
+    var(--color-lp-violet) 0 2.5px,
+    rgb(124 77 255 / 0.3) 3.5px,
+    transparent 7px
+  );
+  animation: spin 2.8s linear infinite;
+  animation-play-state: paused;
+}
+
+/* ── Label ─────────────────────────────────────────────────────────────── */
+
+.label {
+  position: absolute;
+  top: 50%;
+  right: calc(100% + 0.875rem);
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--color-lp-line);
+  border-radius: 999px;
+  background-color: rgb(255 255 255 / 0.94);
+  box-shadow: var(--shadow-lp-sm);
+  color: var(--color-lp-ink-2);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(8px, -50%);
+  transition:
+    opacity 250ms var(--ease-out-expo),
+    transform 500ms var(--ease-out-expo);
+}
+
+/* ── Hover (fine pointers only) and keyboard focus ─────────────────────── */
+
+@media (hover: hover) and (pointer: fine) {
+  .button[data-shown]:hover {
+    transform: translateY(-3px);
+    border-color: rgb(109 74 255 / 0.32);
+    color: var(--color-lp-violet-700);
+    box-shadow:
+      0 2px 4px rgb(30 20 80 / 0.05),
+      0 18px 36px -12px rgb(109 74 255 / 0.55);
+  }
+
+  .button:hover .arrow {
+    transform: translateY(-2px);
+    animation: launch 800ms var(--ease-out-expo);
+  }
+
+  .button:hover .ring {
+    filter: drop-shadow(0 0 4px rgb(124 77 255 / 0.6));
+  }
+
+  .button:hover .orbit {
+    opacity: 1;
+    transform: none;
+  }
+
+  .button:hover .orbit::before,
+  .button:hover .orbit::after {
+    animation-play-state: running;
+  }
+
+  .button:hover .label {
+    opacity: 1;
+    transform: translate(0, -50%);
+  }
+}
+
+.button:focus-visible {
+  color: var(--color-lp-violet-700);
+}
+
+/* The focus outline is the ring here; an orbit beside it would only add noise. */
+.button:focus-visible .ring {
+  filter: drop-shadow(0 0 4px rgb(124 77 255 / 0.6));
+}
+
+.button:focus-visible .label {
+  opacity: 1;
+  transform: translate(0, -50%);
+}
+
+/* After the hover rules: a press always reads as a press. */
+.button[data-shown]:active {
+  transform: scale(0.93);
+  transition-duration: 120ms;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Out of the top, back in from below, settling on the hover nudge. */
+@keyframes launch {
+  0% {
+    transform: translateY(0);
+  }
+  38% {
+    transform: translateY(-160%);
+    opacity: 0;
+  }
+  39% {
+    transform: translateY(160%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(-2px);
+    opacity: 1;
+  }
+}

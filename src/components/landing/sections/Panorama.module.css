@@ -1,0 +1,409 @@
+/*
+ * The final call-to-action's painted backdrop (PanoramaBackdrop.tsx).
+ *
+ * Layers stack back to front in source order. Each reads the stage's
+ * --fc-scroll / --fc-px / --fc-py (written by FinalCtaStage, all 0 at rest)
+ * and its own --lag and --sway, so distant layers trail the scroll and near
+ * ones swing with the pointer. Positions are mobile-first: the stacked layout
+ * puts the scene in the lower part of the band, the wide one spreads it out.
+ * Every loop ends on a sensible still frame, since reduced motion runs each
+ * animation once, instantly.
+ */
+
+.backdrop,
+.front {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.backdrop {
+  z-index: 0;
+}
+
+/* In front of the island (z-index 2 in FinalCta.module.css), behind the scrim. */
+.front {
+  z-index: 3;
+}
+
+.layer {
+  position: absolute;
+  pointer-events: none;
+}
+
+.parallax {
+  transform: translate3d(
+    calc(var(--fc-px, 0) * var(--sway, 0) * -1px),
+    calc(var(--fc-scroll, 0) * var(--lag, 0) * 1px + var(--fc-py, 0) * var(--sway, 0) * -0.4px),
+    0
+  );
+  will-change: transform;
+}
+
+.art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* Offscreen, every loop in the band stops (FinalCtaStage sets data-idle), and
+   the parallax layers may give their GPU memory back. */
+:global([data-idle]) .backdrop *,
+:global([data-idle]) .front * {
+  animation-play-state: paused;
+}
+
+:global([data-idle]) .parallax {
+  will-change: auto;
+}
+
+/* ── Sun and light rays ─────────────────────────────────────────────────── */
+
+.sunLayer {
+  --sun-x: 70%;
+  --sun-y: 70%;
+  inset: 0;
+}
+
+.rays,
+.sunHalo,
+.sun {
+  position: absolute;
+  left: var(--sun-x);
+  top: var(--sun-y);
+  translate: -50% -50%;
+}
+
+/* Irregular beams, faded out radially, turning very slowly. */
+.rays {
+  width: max(44rem, 90%);
+  aspect-ratio: 1;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    rgb(255 247 238 / 0.55) 4deg,
+    transparent 9deg 22deg,
+    rgb(255 247 238 / 0.38) 25deg,
+    transparent 29deg 44deg,
+    rgb(255 247 238 / 0.5) 47deg,
+    transparent 50deg 71deg,
+    rgb(255 247 238 / 0.32) 76deg,
+    transparent 83deg 101deg,
+    rgb(255 247 238 / 0.46) 104deg,
+    transparent 108deg 129deg,
+    rgb(255 247 238 / 0.36) 133deg,
+    transparent 139deg 160deg,
+    rgb(255 247 238 / 0.5) 163deg,
+    transparent 167deg 190deg,
+    rgb(255 247 238 / 0.34) 194deg,
+    transparent 199deg 222deg,
+    rgb(255 247 238 / 0.48) 225deg,
+    transparent 229deg 251deg,
+    rgb(255 247 238 / 0.3) 256deg,
+    transparent 262deg 283deg,
+    rgb(255 247 238 / 0.45) 286deg,
+    transparent 290deg 312deg,
+    rgb(255 247 238 / 0.36) 316deg,
+    transparent 321deg 340deg,
+    rgb(255 247 238 / 0.42) 343deg,
+    transparent 347deg
+  );
+  -webkit-mask-image: radial-gradient(closest-side, #000 4%, rgb(0 0 0 / 0.55) 26%, rgb(0 0 0 / 0.18) 48%, transparent 70%);
+  mask-image: radial-gradient(closest-side, #000 4%, rgb(0 0 0 / 0.55) 26%, rgb(0 0 0 / 0.18) 48%, transparent 70%);
+  opacity: 0.5;
+  transition: opacity 900ms var(--ease-out-expo);
+  animation: turn 240s linear infinite;
+}
+
+/* A second set turning the other way, so the beams slowly shimmer. */
+.raysCounter {
+  opacity: 0.3;
+  rotate: 11deg;
+  animation-duration: 170s;
+  animation-direction: reverse;
+}
+
+.sunHalo {
+  width: clamp(26rem, 64vw, 66rem);
+  aspect-ratio: 1.55;
+  opacity: 0.82;
+  transition:
+    opacity 900ms var(--ease-out-expo),
+    scale 900ms var(--ease-out-expo);
+}
+
+.sunGlow {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    rgb(255 240 222 / 0.92),
+    rgb(255 216 204 / 0.5) 40%,
+    rgb(255 196 214 / 0.16) 68%,
+    transparent
+  );
+  animation: breathe 9s var(--ease-in-out-soft) infinite;
+}
+
+.sun {
+  width: clamp(4rem, 6.4vw, 6.5rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    #fffdf8 0 32%,
+    rgb(255 245 230 / 0.95) 44%,
+    rgb(255 224 200 / 0.5) 60%,
+    transparent 72%
+  );
+}
+
+@keyframes turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.85;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+
+/* ── High wisps ─────────────────────────────────────────────────────────── */
+
+.wisps {
+  left: -4%;
+  right: -4%;
+  top: 34%;
+  height: 26%;
+}
+
+.drift {
+  width: 100%;
+  height: 100%;
+  animation: drift 46s var(--ease-in-out-soft) infinite alternate;
+}
+
+.driftSlow {
+  animation-duration: 38s;
+  animation-direction: alternate-reverse;
+}
+
+.driftNear {
+  animation-duration: 28s;
+}
+
+@keyframes drift {
+  from {
+    transform: translateX(-1.4%);
+  }
+  to {
+    transform: translateX(1.4%);
+  }
+}
+
+/* ── Mountain ranges and the haze between them ──────────────────────────── */
+
+.range {
+  left: -3%;
+  right: -3%;
+}
+
+.far {
+  bottom: 24%;
+  height: 22%;
+}
+
+.mid {
+  bottom: 21%;
+  height: 25%;
+}
+
+.near {
+  bottom: 18%;
+  height: 28%;
+}
+
+/* Mist pooling at the foot of the far and middle ranges. Part of each range's
+   own layer, so it moves with it and costs no extra compositing layer. */
+.far::after,
+.mid::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -8%;
+  height: 52%;
+  background: linear-gradient(to top, rgb(255 228 236 / 0.75), transparent);
+}
+
+.mid::after {
+  height: 40%;
+}
+
+/* ── Far-off islands ────────────────────────────────────────────────────── */
+
+.isles {
+  inset: 0;
+}
+
+.isle {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--w);
+  translate: -50% -50%;
+}
+
+.isleWideOnly {
+  display: none;
+}
+
+.isleBob {
+  animation: bob var(--period, 10s) var(--ease-in-out-soft) var(--phase, 0s) infinite;
+}
+
+.isleArt {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-7px) rotate(-1.8deg);
+  }
+}
+
+/* ── Cloud sea (behind the island) and bank (in front of it) ────────────── */
+
+.sea {
+  left: -5%;
+  right: -5%;
+  bottom: -4%;
+  height: 27%;
+}
+
+.bank {
+  left: -6%;
+  right: -6%;
+  bottom: -6%;
+  height: 21%;
+}
+
+/* ── Sparkles ───────────────────────────────────────────────────────────── */
+
+.sparkles {
+  inset: 0;
+}
+
+.sparkle {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--s);
+  height: var(--s);
+  translate: -50% -50%;
+  color: #fff;
+  filter: drop-shadow(0 0 3px rgb(255 255 255 / 0.95)) drop-shadow(0 0 7px rgb(255 205 235 / 0.85));
+  animation: hover-y 7s var(--ease-in-out-soft) var(--delay, 0s) infinite alternate;
+}
+
+.sparkle svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  animation: twinkle var(--dur, 4s) var(--ease-in-out-soft) var(--delay, 0s) infinite;
+}
+
+/* Full sparkle at both ends; a quarter turn per cycle reads as a slow spin. */
+@keyframes twinkle {
+  0% {
+    opacity: 0.95;
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    opacity: 0.2;
+    transform: scale(0.42) rotate(45deg);
+  }
+  100% {
+    opacity: 0.95;
+    transform: scale(1) rotate(90deg);
+  }
+}
+
+@keyframes hover-y {
+  from {
+    transform: translateY(5px);
+  }
+  to {
+    transform: translateY(-7px);
+  }
+}
+
+/* ── Wide layout: the scene spreads across the band ─────────────────────── */
+
+@media (min-width: 1024px) {
+  .sunLayer {
+    --sun-x: 85%;
+    --sun-y: 46%;
+  }
+
+  .wisps {
+    top: 0;
+    height: 58%;
+  }
+
+  .far {
+    bottom: 31%;
+    height: 46%;
+  }
+
+  .mid {
+    bottom: 27%;
+    height: 50%;
+  }
+
+  .near {
+    bottom: 22%;
+    height: 56%;
+  }
+
+  .isle,
+  .isleWideOnly {
+    display: block;
+    left: var(--lx);
+    top: var(--ly);
+    width: var(--lw);
+  }
+
+  .sea {
+    bottom: -6%;
+    height: 44%;
+  }
+
+  .bank {
+    bottom: -8%;
+    height: 46%;
+  }
+
+  .sparkle {
+    left: var(--lx);
+    top: var(--ly);
+  }
+}

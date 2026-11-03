@@ -1,0 +1,367 @@
+/*
+ * The final call-to-action band: layout, the dusk scrim, the copy and the
+ * island's box. The painted scene behind it is Panorama.module.css.
+ *
+ * Stacking inside the band (it is its own stacking context):
+ *   0 backdrop · 2 island · 3 front clouds and sparkles · 5 scrim · 10 copy
+ */
+
+.band {
+  --fc-px: 0;
+  --fc-py: 0;
+  --fc-scroll: 0;
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  scroll-margin-top: 4.5rem;
+  color: #fff;
+  /* Pastel sunset: lavender overhead, through pink, to peach at the horizon. */
+  background:
+    radial-gradient(60% 34% at 72% 70%, rgb(255 226 196 / 0.9), rgb(255 206 190 / 0.45) 45%, transparent 75%),
+    radial-gradient(90% 30% at 40% 74%, rgb(255 200 214 / 0.5), transparent 70%),
+    linear-gradient(180deg, #a596e6 0%, #bba8ef 26%, #d8b3e6 46%, #f2bfd6 62%, #ffd0c4 72%, #fbe0dc 84%, #f1e6f6 100%);
+}
+
+/* Over the dusk side the global violet ring would vanish; white reads there. */
+.band :focus-visible {
+  outline-color: #fff;
+}
+
+/* ── Dusk scrim: keeps white copy above 4.5:1 over a pastel sky ──────────── */
+
+/* Wide layout only: dusk falls across the copy's side of the band. Stacked,
+   the copy carries its own scrim (below), so it covers however tall it runs. */
+.scrim {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* ── Copy ───────────────────────────────────────────────────────────────── */
+
+.content {
+  position: relative;
+  z-index: 10;
+  padding-top: clamp(4.5rem, 14vw, 6.5rem);
+  padding-bottom: 4.5rem;
+  /* The container spans the band; only the copy itself takes the pointer. */
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgb(46 26 124 / 0.84) 0%,
+    rgb(54 32 138 / 0.78) calc(100% - 4.5rem),
+    rgb(62 40 150 / 0.4) calc(100% - 2.25rem),
+    transparent 100%
+  );
+}
+
+.copy {
+  max-width: 34rem;
+  pointer-events: auto;
+}
+
+.title {
+  color: #fff;
+  font-size: clamp(2.15rem, 1.15rem + 3.2vw, 3.7rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  text-shadow:
+    0 2px 26px rgb(36 18 110 / 0.5),
+    0 1px 2px rgb(30 14 90 / 0.35);
+}
+
+.line {
+  display: block;
+}
+
+/* Sized to its own text, so the swash below it matches the line. */
+.accent {
+  position: relative;
+  display: inline-block;
+  padding-right: 0.08em;
+}
+
+.swash {
+  position: absolute;
+  top: calc(100% - 0.02em);
+  left: -0.04em;
+  width: calc(100% + 0.3em);
+  height: auto;
+  overflow: visible;
+  pointer-events: none;
+  filter: drop-shadow(0 0 6px rgb(167 120 255 / 0.9));
+}
+
+.swashPath {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+
+/* Drawn once the copy reveals. Only hidden when JavaScript is there to reveal it. */
+:global(html[data-js]) .swashPath {
+  stroke-dashoffset: 1;
+  opacity: 0;
+}
+
+:global(html[data-js]) [data-revealed] .swashPath {
+  animation: swash-draw 1.5s var(--ease-out-expo) 0.55s forwards;
+}
+
+@keyframes swash-draw {
+  from {
+    stroke-dashoffset: 1;
+    opacity: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+.description {
+  margin-top: 1.4rem;
+  max-width: 30rem;
+  color: #fff;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  text-shadow: 0 1px 14px rgb(36 18 110 / 0.55);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.75rem;
+  margin-top: 2.1rem;
+}
+
+/* A soft, breathing glow under the primary button. */
+.ctaGlow {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+}
+
+.ctaGlow::before {
+  content: '';
+  position: absolute;
+  inset: 0.5rem 0.25rem -0.45rem;
+  z-index: -1;
+  border-radius: 999px;
+  background: linear-gradient(100deg, #7c4dff, #c084fc 58%, #ff9ecf);
+  filter: blur(16px);
+  opacity: 0.6;
+  transition: inset 600ms var(--ease-out-expo);
+  animation: cta-breathe 3.8s var(--ease-in-out-soft) infinite;
+}
+
+.ctaGlow:hover::before,
+.ctaGlow:focus-within::before {
+  inset: 0.15rem -0.6rem -0.75rem;
+}
+
+@keyframes cta-breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+.cta {
+  border-color: rgb(255 255 255 / 0.22);
+}
+
+.secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  border-radius: 0.5rem;
+  color: #fff;
+  font-size: 0.98rem;
+  font-weight: 600;
+  text-shadow: 0 1px 12px rgb(36 18 110 / 0.6);
+}
+
+.secondaryLabel {
+  padding-bottom: 0.15rem;
+  background: linear-gradient(currentColor, currentColor) left bottom / 0% 1.5px no-repeat;
+  transition: background-size 500ms var(--ease-out-expo);
+}
+
+.secondary:hover .secondaryLabel,
+.secondary:focus-visible .secondaryLabel {
+  background-size: 100% 1.5px;
+}
+
+.secondaryIcon {
+  width: 1rem;
+  height: 1rem;
+  transition: transform 450ms var(--ease-out-expo);
+}
+
+.secondary:hover .secondaryIcon,
+.secondary:focus-visible .secondaryIcon {
+  transform: translateX(4px);
+}
+
+/* ── The island ─────────────────────────────────────────────────────────── */
+
+.islandBox {
+  position: relative;
+  z-index: 2;
+  align-self: center;
+  width: min(100%, 40rem);
+  height: clamp(17rem, 78vw, 28rem);
+  /* Rises into the tail of the scrim's fade, and sinks a little past the band's bottom. */
+  margin-top: -2.25rem;
+  margin-bottom: -1.75rem;
+  pointer-events: none;
+}
+
+/* Warm light behind the island, so it reads as backlit by the sunset. */
+.islandHalo {
+  position: absolute;
+  inset: 2% 0 16%;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    rgb(255 243 232 / 0.8),
+    rgb(255 222 236 / 0.42) 48%,
+    rgb(214 196 255 / 0.14) 72%,
+    transparent
+  );
+  opacity: 0.75;
+  transition:
+    opacity 900ms var(--ease-out-expo),
+    scale 900ms var(--ease-out-expo);
+}
+
+.islandLift {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition:
+    translate 900ms var(--ease-out-expo),
+    scale 900ms var(--ease-out-expo);
+}
+
+/* A mouse shortcut into the world over the island itself. The visible,
+   focusable way in is the button; this is hidden from assistive tech. */
+.islandHit {
+  position: absolute;
+  inset: 16% 20% 24%;
+  border-radius: 50%;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+/* On touch, a tap meant for scrolling could land here and open the heavy 3D
+   world unasked; the button is the way in there. */
+@media (hover: none), (pointer: coarse) {
+  .islandHit {
+    display: none;
+  }
+}
+
+/* Reaching for the way in lifts the island and brightens the sunset. */
+.band:has(.cta:hover, .cta:focus-visible, .islandHit:hover) .islandLift {
+  translate: 0 -8px;
+  scale: 1.025;
+}
+
+.band:has(.cta:hover, .cta:focus-visible, .islandHit:hover) .islandHalo {
+  opacity: 1;
+  scale: 1.06;
+}
+
+.band:has(.cta:hover, .cta:focus-visible, .islandHit:hover) [data-pano='halo'] {
+  opacity: 1;
+  scale: 1.1;
+}
+
+.band:has(.cta:hover, .cta:focus-visible, .islandHit:hover) [data-pano='rays'] {
+  opacity: 0.75;
+}
+
+.band[data-idle] .ctaGlow::before {
+  animation-play-state: paused;
+}
+
+/* ── Wide layout: copy left, island right ───────────────────────────────── */
+
+@media (min-width: 1024px) {
+  .band {
+    justify-content: center;
+    min-height: clamp(34rem, 40vw, 46rem);
+    background:
+      radial-gradient(42% 60% at 86% 50%, rgb(255 226 196 / 0.95), rgb(255 206 190 / 0.5) 45%, transparent 75%),
+      radial-gradient(70% 50% at 60% 62%, rgb(255 200 214 / 0.55), transparent 70%),
+      linear-gradient(180deg, #a596e6 0%, #bba8ef 20%, #d8b3e6 38%, #f2bfd6 52%, #ffd0c4 64%, #fbe0dc 78%, #f1e6f6 100%);
+  }
+
+  /* Holds its strength to the copy column's edge (the band's centre line at
+     every width), then lets the sunset through toward the island. */
+  .scrim {
+    display: block;
+    background:
+      radial-gradient(58% 78% at 24% 52%, rgb(58 34 148 / 0.62), rgb(58 34 148 / 0.34) 55%, transparent 80%),
+      linear-gradient(
+        90deg,
+        rgb(48 28 128 / 0.8) 0%,
+        rgb(56 34 142 / 0.72) 28%,
+        rgb(64 40 152 / 0.62) 44%,
+        rgb(72 46 160 / 0.36) 52%,
+        rgb(80 52 170 / 0.12) 60%,
+        transparent 68%
+      );
+  }
+
+  .content {
+    padding-block: clamp(5rem, 8vw, 7.5rem);
+    background: none;
+  }
+
+  /* With the container's symmetric padding this column always ends at the
+     band's centre line, which is where the island's box begins. */
+  .copy {
+    max-width: min(36rem, 50%);
+  }
+
+  /* Two lines, as composed: sized so the longer line fits the column. */
+  .title {
+    font-size: min(3.6rem, 4.5vw);
+  }
+
+  .line,
+  .accent {
+    white-space: nowrap;
+  }
+
+  .description {
+    margin-top: 1.6rem;
+    font-size: 1.125rem;
+  }
+
+  .actions {
+    margin-top: 2.4rem;
+  }
+
+  .islandBox {
+    position: absolute;
+    top: 8%;
+    right: max(1rem, calc((100% - 92rem) / 2));
+    left: calc(50% + 1.5rem);
+    width: auto;
+    height: 95%;
+    margin: 0;
+  }
+}

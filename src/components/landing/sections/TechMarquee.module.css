@@ -1,0 +1,232 @@
+/*
+ * Tech marquee — two rows of technology pills drifting in opposite
+ * directions. Each row's track holds the list twice and slides by exactly one
+ * copy (-50%), so the loop has no seam; the trailing gap lives inside each
+ * list for the same reason. Pure CSS: no JavaScript runs per frame.
+ * Theme variables carry fallbacks because Tailwind only emits the ones a
+ * utility uses.
+ */
+
+.section {
+  --mq-line: var(--color-lp-line, #e8e5f3);
+  --mq-line-strong: var(--color-lp-line-strong, #d7d2ea);
+  --mq-ink-2: var(--color-lp-ink-2, #2a2742);
+  --mq-violet: var(--color-lp-violet, #6d4aff);
+  --mq-violet-700: var(--color-lp-violet-700, #4a22d6);
+  --mq-expo: var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1));
+  --mq-shadow-sm: var(
+    --shadow-lp-sm,
+    0 1px 2px rgb(30 20 80 / 0.05),
+    0 6px 16px -8px rgb(60 40 160 / 0.14)
+  );
+  --mq-shadow-md: var(
+    --shadow-lp-md,
+    0 2px 4px rgb(30 20 80 / 0.04),
+    0 16px 36px -14px rgb(70 45 190 / 0.26)
+  );
+  position: relative;
+  padding-top: clamp(2.5rem, 5vw, 3.75rem);
+  padding-bottom: clamp(0.5rem, 1.5vw, 1rem);
+  scroll-margin-top: 4.5rem;
+}
+
+/* ── Heading line ────────────────────────────────────────────────────────── */
+
+.head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.875rem;
+}
+
+.rule {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--mq-line-strong));
+}
+
+.ruleEnd {
+  background: linear-gradient(90deg, var(--mq-line-strong), transparent);
+}
+
+/* The title with its pause control beside it: the control sits next to the
+   words that say what it stops, and the pair fits down to 360px. */
+.headCenter {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* A shade darker than lp-muted, so it keeps 4.5:1 over the background canvas's tints. */
+.title {
+  color: #625e7d;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0.2em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/* Pause control: a visually hidden checkbox inside a round label. Checked
+   stops both rows — the WCAG 2.2.2 pause for content that moves on its own. */
+.toggle {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--mq-line);
+  border-radius: 999px;
+  background-color: #fff;
+  box-shadow: var(--mq-shadow-sm);
+  color: var(--mq-ink-2);
+  cursor: pointer;
+  transition:
+    border-color 300ms,
+    color 300ms;
+}
+
+.toggle:hover {
+  border-color: rgb(109 74 255 / 0.4);
+  color: var(--mq-violet-700);
+}
+
+.toggle:has(.toggleInput:focus-visible) {
+  outline: 2px solid var(--mq-violet);
+  outline-offset: 3px;
+}
+
+.toggleIcon {
+  display: grid;
+  place-items: center;
+}
+
+.iconPlay {
+  display: none;
+}
+
+.toggleInput:checked + .toggleIcon .iconPause {
+  display: none;
+}
+
+.toggleInput:checked + .toggleIcon .iconPlay {
+  display: block;
+}
+
+/* ── Rows ────────────────────────────────────────────────────────────────── */
+
+.rows {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 1.4rem;
+}
+
+.row {
+  overflow: hidden;
+  /* Room inside the clip for a pill's hover lift and shadow. */
+  padding-block: 0.45rem 0.7rem;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
+}
+
+.track {
+  display: flex;
+  width: max-content;
+  animation: mq-scroll var(--marquee-duration, 60s) linear infinite;
+}
+
+.row[data-reverse] .track {
+  animation-direction: reverse;
+}
+
+/* Hold still to read: while a row is hovered, and while paused. */
+.row:hover .track,
+.section:has(.toggleInput:checked) .track {
+  animation-play-state: paused;
+}
+
+.list {
+  display: flex;
+  flex: none;
+  gap: 0.75rem;
+  padding-right: 0.75rem;
+}
+
+/* ── Pills ───────────────────────────────────────────────────────────────── */
+
+.pill {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 0.55rem;
+  height: 2.75rem;
+  padding: 0 1.15rem 0 0.8rem;
+  border: 1px solid var(--mq-line);
+  border-radius: 999px;
+  background-color: rgb(255 255 255 / 0.92);
+  box-shadow: var(--mq-shadow-sm);
+  color: var(--mq-ink-2);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  transition:
+    transform 450ms var(--mq-expo),
+    box-shadow 450ms var(--mq-expo),
+    border-color 300ms,
+    color 300ms;
+}
+
+.glyph {
+  display: grid;
+  place-items: center;
+  transition: transform 800ms var(--mq-expo);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .pill:hover {
+    border-color: rgb(109 74 255 / 0.4);
+    box-shadow: var(--mq-shadow-md);
+    color: var(--mq-violet-700);
+    transform: translateY(-3px);
+  }
+
+  .pill:hover .glyph {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes mq-scroll {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ── Reduced motion: no drift — one centred, wrapped set of pills ────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .row {
+    overflow: visible;
+    padding-block: 0.3rem;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .track {
+    width: auto;
+    animation: none;
+  }
+
+  .list {
+    flex: 1;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem;
+    padding-right: 0;
+  }
+
+  .copy,
+  .toggle {
+    display: none;
+  }
+}

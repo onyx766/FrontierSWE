@@ -6,8 +6,8 @@
  * that type-checks can still render nothing.
  *
  *   node scripts/shot.mjs --url "/lab?only=core" --out shot.png
- *   node scripts/shot.mjs --url / --out a.png --fps
- *   node scripts/shot.mjs --url / --steps '[{"press":"w","ms":2500},{"shot":"b.png"}]'
+ *   node scripts/shot.mjs --url /world --out a.png --fps
+ *   node scripts/shot.mjs --url /world --steps '[{"press":"w","ms":2500},{"shot":"b.png"}]'
  *
  * Options
  *   --url      Path or full URL. Paths resolve against $BASE_URL or localhost:3000.
@@ -53,7 +53,7 @@ function parseArgs(argv) {
 }
 
 const options = parseArgs(process.argv.slice(2));
-const url = String(options.url ?? '/');
+const url = String(options.url ?? '/world');
 const target = url.startsWith('http') ? url : `${BASE}${url.startsWith('/') ? '' : '/'}${url}`;
 const [width, height] = String(options.size ?? '1672x941').split('x').map(Number);
 const settle = Number(options.wait ?? 1500);

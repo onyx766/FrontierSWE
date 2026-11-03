@@ -1,4 +1,4 @@
-import { domainHref } from '@/data/site';
+import { domainHref, sectionHref } from '@/data/site';
 import {
   coreStation,
   hudCopy,
@@ -40,25 +40,25 @@ export function islandAt(point: { x: number; z: number }): IslandContent | null 
 }
 
 /**
- * The page that covers a station's subject. Rows in the mission log are real
+ * The homepage section that covers a station's subject. Rows in the mission log are real
  * links to it, so the same list works without JavaScript, without WebGL, and
  * for crawlers. With the world running, a click walks there instead.
  */
 export function stationHref({ subject }: StationContent): string {
   switch (subject.type) {
     case 'project':
-      return `/projects/${subject.slug}`;
+      return sectionHref.projects;
     case 'domain':
       return domainHref(subject.domain);
     case 'welcome':
-      return '/start-project';
+      return sectionHref.contact;
     case 'services':
-      return '/services';
+      return sectionHref.services;
     case 'career':
     case 'capabilities':
-      return '/experience';
+      return sectionHref.experience;
     case 'about':
     case 'principles':
-      return '/about';
+      return sectionHref.about;
   }
 }

@@ -1,0 +1,120 @@
+/*
+ * "Principles I work by": numbered cards. <Tilt> (the wrapper) owns the
+ * transform; everything visual lives on .card inside it, so these transitions
+ * never fight the tilt's own. Hover effects are for fine pointers only.
+ */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  padding: 1.6rem 1.6rem 1.75rem;
+  transition:
+    border-color 300ms,
+    box-shadow 600ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* A pale numeral; the vivid gradient fades in over it on hover. (Not an
+   outline: text-stroke traces the variable font's overlapping contours.) */
+.number {
+  position: relative;
+  display: inline-block;
+  font-size: 2.75rem;
+  font-weight: 800;
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+  transform-origin: 20% 80%;
+  transition: transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.numberBase {
+  background-image: linear-gradient(180deg, #d4c8fd 0%, #ebe5fe 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.numberFill {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(100deg, #5b34f0 0%, #7c4dff 45%, #a46bff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  opacity: 0;
+  transition: opacity 450ms;
+}
+
+.icon {
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid #e8e5f3;
+  border-radius: 0.85rem;
+  background: #f4f2fc;
+  color: #5b34f0;
+  transition:
+    transform 700ms cubic-bezier(0.16, 1, 0.3, 1),
+    color 300ms,
+    border-color 300ms;
+}
+
+.icon::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, #4f2ee8 0%, #6d4aff 52%, #9b5cff 100%);
+  opacity: 0;
+  transition: opacity 350ms;
+}
+
+/* Accent line that draws itself along the bottom edge on hover. */
+.bar {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #5b34f0, #9b5cff 55%, #60a5fa);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 800ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .card:hover {
+    border-color: rgb(109 74 255 / 0.3);
+    box-shadow:
+      0 2px 4px rgb(30 20 80 / 0.04),
+      0 22px 44px -18px rgb(70 45 190 / 0.32);
+  }
+
+  .card:hover .number {
+    transform: rotate(-8deg) scale(1.06);
+  }
+
+  .card:hover .numberFill {
+    opacity: 1;
+  }
+
+  .card:hover .icon {
+    border-color: transparent;
+    color: #fff;
+    transform: rotate(14deg);
+  }
+
+  .card:hover .icon::before {
+    opacity: 1;
+  }
+
+  .card:hover .bar {
+    transform: scaleX(1);
+  }
+}

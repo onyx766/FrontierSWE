@@ -67,6 +67,11 @@ interface UniverseState {
   travelTo(stationId: string): void;
   /** Stop the autopilot, e.g. because the visitor took the controls. */
   cancelTravel(): void;
+  /**
+   * The robot has been placed on a station's pad from outside the walk (a deep
+   * link): follow it there and open the briefing, as if it had just arrived.
+   */
+  arriveAt(stationId: string): void;
 
   /** Called by the scene when the robot steps onto, or off, a pad. */
   setNear(stationId: string | null): void;
@@ -159,6 +164,25 @@ export const useUniverse = create<UniverseState>()(
 
     cancelTravel: () => {
       if (get().travel !== null || get().touring) set({ travel: null, touring: false });
+    },
+
+    arriveAt: (stationId) => {
+      const state = get();
+      if (state.phase === 'loading') return;
+      const visited = state.visited.includes(stationId)
+        ? state.visited
+        : [...state.visited, stationId];
+      if (visited !== state.visited) saveVisited(visited);
+      set({
+        phase: 'explore',
+        travel: null,
+        touring: false,
+        near: stationId,
+        active: stationId,
+        beat: 0,
+        dismissed: false,
+        visited,
+      });
     },
 
     setNear: (stationId) => {

@@ -1,0 +1,924 @@
+/*
+ * How I Engineer: the request-path diagram (FlowDiagram, FlowEdges).
+ *
+ * Colours are literal: CSS modules aren't scanned by Tailwind, which only
+ * emits the theme variables some utility happens to use. The layout follows
+ * the panel's own width (a container query), because the panel sits beside
+ * the heading on wide screens and spans the column below lg.
+ *
+ * Packets ride "rails": a box the packet crosses corner to corner. The mover
+ * inside is the rail's own size, so translate(100%, 100%) lands exactly on
+ * the far corner at any width: no measuring, and no JavaScript per frame.
+ */
+
+.panel {
+  --violet: #6d4aff;
+  --violet-deep: #5b34f0;
+  --ink: #0e0c22;
+  --body: #4f4b68;
+  --muted: #6f6b8a;
+  --line: #e8e5f3;
+  --edge: #b9b1d9;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  /* One request per cycle. FlowDiagram's start offsets and the travel windows
+     in the keyframes below are fractions of it: change them together. */
+  --cycle: 6.4s;
+  position: relative;
+  isolation: isolate;
+  container: flow / inline-size;
+}
+
+/* A faint dot grid under the diagram, fading out toward the edges. */
+.panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background-image: radial-gradient(circle, rgb(109 74 255 / 0.16) 1px, transparent 1.6px);
+  background-position: center;
+  background-size: 18px 18px;
+  -webkit-mask-image: radial-gradient(ellipse 72% 68% at 50% 45%, #000 25%, transparent 100%);
+  mask-image: radial-gradient(ellipse 72% 68% at 50% 45%, #000 25%, transparent 100%);
+  pointer-events: none;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.35rem;
+}
+
+.headLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--muted);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.headEnd {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+}
+
+.live {
+  position: relative;
+  width: 0.45rem;
+  height: 0.45rem;
+  flex: none;
+  border-radius: 50%;
+  background: var(--violet);
+  transition: background-color 300ms;
+}
+
+.live::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: inherit;
+  animation: live 2.4s var(--ease) infinite;
+}
+
+.panel[data-paused] .live {
+  background: var(--edge);
+}
+
+@keyframes live {
+  0% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+
+  80%,
+  100% {
+    opacity: 0;
+    transform: scale(2.8);
+  }
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.hintCoarse {
+  display: none;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .hintFine {
+    display: none;
+  }
+
+  .hintCoarse {
+    display: inline;
+  }
+}
+
+/* On a phone the header keeps only the label and the control. */
+@container flow (max-width: 25.99rem) {
+  .hint {
+    display: none;
+  }
+}
+
+.toggle {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 0.4rem;
+  height: 1.875rem;
+  padding: 0 0.75rem 0 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  transition:
+    border-color 200ms,
+    color 200ms,
+    box-shadow 300ms var(--ease);
+}
+
+.toggle:hover {
+  border-color: rgb(109 74 255 / 0.45);
+  color: var(--violet-deep);
+  box-shadow: 0 8px 18px -12px rgb(70 45 190 / 0.6);
+}
+
+.toggleIcon {
+  width: 0.8rem;
+  height: 0.8rem;
+}
+
+/* Inert until hydrated (and forever without JavaScript), so out of sight; the
+   space stays reserved so nothing shifts when they appear. */
+.panel:not([data-ready]) .hint,
+.panel:not([data-ready]) .toggle {
+  visibility: hidden;
+}
+
+/* Nothing moves under reduced motion, so there is nothing to pause. */
+@media (prefers-reduced-motion: reduce) {
+  .toggle {
+    display: none;
+  }
+}
+
+/* ── Flow grid ───────────────────────────────────────────────────────────── */
+
+/* Narrow: a vertical stack with the stores side by side at the end. Two equal
+   columns and no gap, so each store's centre sits at 25% / 75%: exactly where
+   the fork's branches come down. */
+.flow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+}
+
+.pathNode,
+.edge,
+.fork {
+  grid-column: 1 / -1;
+}
+
+.pathNode {
+  justify-self: center;
+  width: min(100%, 17.5rem);
+}
+
+.edge {
+  position: relative;
+  height: 2.1rem;
+}
+
+.fork {
+  position: relative;
+  height: 3.1rem;
+}
+
+.storeNode {
+  margin-inline: 0.3rem;
+}
+
+/* Wide: one row, the stores stacked in the last column. Two equal rows and no
+   gap, so the stores' centres sit at 25% / 75% of the height. */
+@container flow (min-width: 36rem) {
+  .flow {
+    grid-template-columns:
+      minmax(0, min(6.25rem, 13.6cqi)) minmax(1.75rem, 1fr)
+      minmax(0, min(6.25rem, 13.6cqi)) minmax(1.75rem, 1fr)
+      minmax(0, min(6.25rem, 13.6cqi)) minmax(1.75rem, 1fr)
+      minmax(0, min(6.25rem, 13.6cqi)) minmax(2rem, 1.2fr)
+      minmax(0, min(10.75rem, 23cqi));
+    grid-template-rows: 1fr 1fr;
+  }
+
+  .pathNode,
+  .edge,
+  .fork {
+    grid-column: auto;
+    grid-row: 1 / span 2;
+  }
+
+  .pathNode {
+    justify-self: stretch;
+    width: auto;
+  }
+
+  .edge,
+  .fork {
+    align-self: stretch;
+    height: auto;
+  }
+
+  .storeNode {
+    grid-column: 9;
+    margin: 0.45rem 0;
+  }
+
+  .storeA {
+    grid-row: 1;
+  }
+
+  .storeB {
+    grid-row: 2;
+  }
+}
+
+/* ── Nodes ───────────────────────────────────────────────────────────────── */
+
+.node {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: 0;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 0.95rem;
+  background: #fff;
+  color: var(--ink);
+  text-align: left;
+  box-shadow:
+    0 1px 2px rgb(30 20 80 / 0.05),
+    0 6px 16px -8px rgb(60 40 160 / 0.16);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform 500ms var(--ease),
+    box-shadow 500ms var(--ease),
+    border-color 300ms;
+}
+
+.pathNode {
+  justify-content: center;
+}
+
+.storeNode {
+  gap: 0.6rem;
+  padding: 0.55rem 0.7rem;
+}
+
+@container flow (min-width: 36rem) {
+  .pathNode {
+    flex-direction: column;
+    gap: 0.5rem;
+    min-height: 6.6rem;
+    padding: 0.85rem 0.3rem 0.75rem;
+    text-align: center;
+  }
+}
+
+/* A phone's half-width store tile can't fit glyph and text side by side. */
+@container flow (max-width: 23.99rem) {
+  .storeNode {
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.7rem 0.35rem 0.6rem;
+    text-align: center;
+  }
+}
+
+/* Selected (hover, focus or click): it rises and its edges light up. */
+.node[aria-selected='true'] {
+  z-index: 1;
+  border-color: rgb(109 74 255 / 0.5);
+  box-shadow:
+    0 0 0 4px rgb(109 74 255 / 0.1),
+    0 18px 34px -16px rgb(70 45 190 / 0.5);
+  transform: translateY(-4px);
+}
+
+@container flow (min-width: 36rem) {
+  .pathNode[aria-selected='true'] {
+    transform: translateY(-6px);
+  }
+}
+
+.glyph {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  flex: none;
+  animation: bump var(--cycle) var(--ease) infinite;
+  animation-delay: var(--arrive, 0s);
+}
+
+.storeNode .glyph {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+/* A full turn when a node is picked, unwinding when another is. A transition
+   rather than an animation: sweeping across the row never cuts a turn short
+   with a snap, and nothing turns on the first paint. */
+.spin {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  transition: transform 900ms var(--ease);
+}
+
+.node[aria-selected='true'] .spin {
+  transform: rotate(360deg);
+}
+
+/* The glyph nods as the request reaches its node (delay: --arrive). */
+@keyframes bump {
+  0% {
+    transform: scale(1);
+  }
+
+  3% {
+    transform: scale(1.14);
+  }
+
+  12%,
+  100% {
+    transform: scale(1);
+  }
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  min-width: 0;
+}
+
+.label {
+  color: var(--ink);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.caption {
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.25;
+}
+
+@container flow (min-width: 36rem) {
+  .label {
+    font-size: clamp(0.76rem, 2.05cqi, 0.86rem);
+  }
+
+  .caption {
+    font-size: clamp(0.6rem, 1.68cqi, 0.72rem);
+    text-wrap: balance;
+  }
+}
+
+/* A ring that opens out from the node as the request arrives. */
+.ping {
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+  animation: ping var(--cycle) linear infinite;
+  animation-delay: var(--arrive, 0s);
+}
+
+/* A soft glow rather than a crisp ring, so mid-pulse it never reads as a
+   second selection. */
+@keyframes ping {
+  0% {
+    opacity: 1;
+    box-shadow: 0 0 10px 1px rgb(109 74 255 / 0.3);
+  }
+
+  13%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 30px 12px rgb(109 74 255 / 0);
+  }
+}
+
+/* ── Edges ───────────────────────────────────────────────────────────────── */
+
+/* The drawable box inside an edge cell: a little clear of the cards. */
+.edgeBox {
+  position: absolute;
+  inset: 0.3rem 0;
+}
+
+@container flow (min-width: 36rem) {
+  .edgeBox {
+    inset: 0 0.45rem;
+  }
+}
+
+.lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+  stroke: var(--edge);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.5;
+}
+
+/* Leaves transition; the groups only switch, so nothing transitions twice. */
+.lines line,
+.lines path,
+.lines circle {
+  transition:
+    stroke 300ms,
+    fill 300ms,
+    stroke-width 300ms;
+}
+
+.edge[data-hot] .lines,
+.lines [data-hot] {
+  stroke: var(--violet);
+  stroke-width: 1.75;
+}
+
+.edge[data-hot] .lines {
+  filter: drop-shadow(0 0 3px rgb(109 74 255 / 0.45));
+}
+
+.junction {
+  fill: #fff;
+}
+
+.junction[data-hot] {
+  fill: var(--violet);
+}
+
+.wide {
+  display: none;
+}
+
+@container flow (min-width: 36rem) {
+  .wide {
+    display: inline;
+  }
+
+  .narrow {
+    display: none;
+  }
+}
+
+/* ── Packets ─────────────────────────────────────────────────────────────── */
+
+.rail {
+  position: absolute;
+  pointer-events: none;
+}
+
+.railWide {
+  display: none;
+}
+
+@container flow (min-width: 36rem) {
+  .railWide {
+    display: block;
+  }
+
+  .railNarrow {
+    display: none;
+  }
+}
+
+/* Invisible until its first leg starts (fill-mode none); the keyframes own
+   the opacity from then on. */
+.mover {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  animation-duration: var(--cycle);
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+.packet {
+  position: absolute;
+  top: -4.5px;
+  left: -4.5px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 35%, #fff 0 18%, #a68bff 44%, #6d4aff 74%);
+  box-shadow:
+    0 0 0 3px rgb(109 74 255 / 0.14),
+    0 0 14px 2px rgb(109 74 255 / 0.55);
+}
+
+.panel[data-paused] .mover,
+.panel[data-paused] .ping,
+.panel[data-paused] .glyph,
+.panel[data-paused] .live::after,
+.panel[data-offscreen] .mover,
+.panel[data-offscreen] .ping,
+.panel[data-offscreen] .glyph,
+.panel[data-offscreen] .live::after {
+  animation-play-state: paused;
+}
+
+/* Rails. A straight hop runs down when stacked and right in a row. */
+.straight {
+  top: 0;
+  left: 50%;
+  width: 0;
+  height: 100%;
+}
+
+@container flow (min-width: 36rem) {
+  .straight {
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 0;
+  }
+}
+
+/* The fork, wide: a stub to the junction, then up or down to a store. */
+.forkStub {
+  top: 50%;
+  left: 0;
+  width: 50%;
+  height: 0;
+}
+
+.forkUp {
+  top: 25%;
+  left: 50%;
+  width: 50%;
+  height: 25%;
+}
+
+.forkDown {
+  top: 50%;
+  left: 50%;
+  width: 50%;
+  height: 25%;
+}
+
+/* The fork, narrow: a stub down to the junction, then out and down. */
+.forkStubNarrow {
+  top: 0;
+  left: 50%;
+  width: 0;
+  height: 50%;
+}
+
+.forkLeft {
+  top: 50%;
+  left: 25%;
+  width: 25%;
+  height: 50%;
+}
+
+.forkRight {
+  top: 50%;
+  left: 50%;
+  width: 25%;
+  height: 50%;
+}
+
+/* Motions. Each runs inside a window at the start of the cycle and rests
+   (invisible) for the remainder; the start offset is the animation-delay. */
+.travel {
+  animation-name: travel;
+}
+
+.stub {
+  animation-name: stub;
+}
+
+.up {
+  animation-name: up;
+}
+
+.down {
+  animation-name: down;
+}
+
+.left {
+  animation-name: left;
+}
+
+.right {
+  animation-name: right;
+}
+
+/* 0.72s of 6.4s. */
+@keyframes travel {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0);
+    animation-timing-function: cubic-bezier(0.37, 0, 0.63, 1);
+  }
+
+  1.6% {
+    opacity: 1;
+  }
+
+  9.6% {
+    opacity: 1;
+  }
+
+  11.25%,
+  100% {
+    opacity: 0;
+    transform: translate(100%, 100%);
+  }
+}
+
+/* 0.4s of 6.4s; hands over to the branches at the junction. */
+@keyframes stub {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+
+  1.2% {
+    opacity: 1;
+  }
+
+  6.25% {
+    opacity: 1;
+    transform: translate(100%, 100%);
+  }
+
+  6.6%,
+  100% {
+    opacity: 0;
+    transform: translate(100%, 100%);
+  }
+}
+
+/* Branches: 0.9s of 6.4s, starting visible at the junction. */
+@keyframes up {
+  0% {
+    opacity: 1;
+    transform: translate(0, 100%);
+  }
+
+  6.5% {
+    transform: translate(0, 0);
+    animation-timing-function: cubic-bezier(0.61, 1, 0.88, 1);
+  }
+
+  12.5% {
+    opacity: 1;
+  }
+
+  14.06%,
+  100% {
+    opacity: 0;
+    transform: translate(100%, 0);
+  }
+}
+
+@keyframes down {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+
+  6.5% {
+    transform: translate(0, 100%);
+    animation-timing-function: cubic-bezier(0.61, 1, 0.88, 1);
+  }
+
+  12.5% {
+    opacity: 1;
+  }
+
+  14.06%,
+  100% {
+    opacity: 0;
+    transform: translate(100%, 100%);
+  }
+}
+
+@keyframes left {
+  0% {
+    opacity: 1;
+    transform: translate(100%, 0);
+  }
+
+  6.5% {
+    transform: translate(0, 0);
+    animation-timing-function: cubic-bezier(0.61, 1, 0.88, 1);
+  }
+
+  12.5% {
+    opacity: 1;
+  }
+
+  14.06%,
+  100% {
+    opacity: 0;
+    transform: translate(0, 100%);
+  }
+}
+
+@keyframes right {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+
+  6.5% {
+    transform: translate(100%, 0);
+    animation-timing-function: cubic-bezier(0.61, 1, 0.88, 1);
+  }
+
+  12.5% {
+    opacity: 1;
+  }
+
+  14.06%,
+  100% {
+    opacity: 0;
+    transform: translate(100%, 100%);
+  }
+}
+
+/* ── Detail bar ──────────────────────────────────────────────────────────── */
+
+.detail {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  margin-top: 1.4rem;
+  padding: 0.85rem 1rem 0.9rem 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 0.92);
+  box-shadow:
+    0 1px 2px rgb(30 20 80 / 0.04),
+    0 12px 26px -18px rgb(60 40 160 / 0.32);
+}
+
+/* The violet tab on its left edge. */
+.detail::before {
+  content: '';
+  position: absolute;
+  top: 0.85rem;
+  bottom: 0.85rem;
+  left: -1px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: linear-gradient(180deg, #6d4aff, #9b5cff);
+}
+
+.detailGlyph {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex: none;
+  border: 1px solid var(--line);
+  border-radius: 0.8rem;
+  background: #f6f4fd;
+  color: var(--ink);
+}
+
+.detailGlyphInner {
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  animation: glyphIn 650ms var(--ease);
+}
+
+@keyframes glyphIn {
+  from {
+    opacity: 0;
+    transform: rotate(-120deg) scale(0.55);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Every node's copy is stacked, invisibly, in one grid cell, so the bar is as
+   tall as the longest and never jumps while hovering along the path. */
+.detailStack {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+
+.detailStack > * {
+  grid-area: 1 / 1;
+}
+
+.detailSizer {
+  visibility: hidden;
+}
+
+.detailBody {
+  animation: detailIn 500ms var(--ease);
+}
+
+@keyframes detailIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.detailTitle {
+  color: var(--ink);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+.detailCaption {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.detailText {
+  margin-top: 0.2rem;
+  color: var(--body);
+  font-size: 0.875rem;
+  line-height: 1.55;
+}
+
+.detailIndex {
+  flex: none;
+  margin-top: 0.1rem;
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+}
+
+/* Narrow: the copy gets the width; the counter is a nicety. */
+@container flow (max-width: 29.99rem) {
+  .detail {
+    gap: 0.75rem;
+    padding-right: 0.85rem;
+  }
+
+  .detailGlyph {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .detailIndex {
+    display: none;
+  }
+}

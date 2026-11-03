@@ -17,11 +17,11 @@ export function SceneFailure() {
       </h2>
       <p className="mt-2 text-[14px] leading-[1.55] text-[#b9bfcc]">{hudCopy.failure.body}</p>
       <div className="mt-4 flex flex-wrap gap-2.5">
-        <Link href="/system" className="uh-pill-button">
+        <Link href="/" className="uh-pill-button">
           {hudCopy.failure.system}
           <ArrowUpRightIcon className="size-3" />
         </Link>
-        <Link href="/projects" className="uh-pill-button">
+        <Link href="/#projects" className="uh-pill-button">
           {hudCopy.failure.projects}
           <ArrowUpRightIcon className="size-3" />
         </Link>

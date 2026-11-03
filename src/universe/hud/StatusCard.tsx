@@ -9,7 +9,7 @@ export function StatusCard() {
         <h2 id="uh-status-title" className="uh-status-title">
           {hudCopy.status.title}
         </h2>
-        <Link href="/system" className="uh-status-link" aria-label={hudCopy.status.link}>
+        <Link href="/#architecture" className="uh-status-link" aria-label={hudCopy.status.link}>
           <svg viewBox="0 0 12 10" aria-hidden>
             <path d="M0.6 5h1.4M3.4 5h4.2" stroke="currentColor" strokeLinecap="round" />
             <path

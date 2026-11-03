@@ -3,13 +3,33 @@
 import Link from 'next/link';
 import { useEffect, useState, type MouseEvent } from 'react';
 import { profile } from '@/data/profile';
-import { navItems, SITE_NAME } from '@/data/site';
+import { navItems } from '@/data/site';
 import { hudCopy } from '@/data/universe';
 import { useUniverse } from '../state/store';
 import { BrandMark } from './BrandMark';
 import { ArrowUpRightIcon, CloseIcon, MenuIcon } from './icons';
 
-const [BRAND_NAME = '', BRAND_TITLE = ''] = SITE_NAME.split(' // ');
+const { name: BRAND_NAME, title: BRAND_TITLE } = hudCopy.brand;
+const BRAND_LABEL = `${BRAND_NAME} // ${BRAND_TITLE}`;
+
+/** Always on screen: the world is opt-in, so leaving it must never take a search. */
+function ExitWorld() {
+  return (
+    <Link href="/" className="uh-exit" aria-label={hudCopy.exit.long} title={hudCopy.exit.long}>
+      <svg viewBox="0 0 16 16" aria-hidden className="uh-exit-arrow">
+        <path
+          d="M13 8H3.5M7.5 3.5 3 8l4.5 4.5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+      <span className="uh-exit-label">{hudCopy.exit.label}</span>
+    </Link>
+  );
+}
 
 function Availability() {
   const { state, label } = profile.availability;
@@ -24,7 +44,7 @@ function Availability() {
 
 function StartProject() {
   return (
-    <Link href="/start-project" className="uh-cta">
+    <Link href="/#contact" className="uh-cta">
       {hudCopy.cta}
       <ArrowUpRightIcon className="uh-cta-arrow" />
     </Link>
@@ -47,27 +67,25 @@ export function TopBar() {
     return () => window.removeEventListener('keydown', closeOnEscape, true);
   }, [menuOpen]);
 
-  /* On the homepage already, so the logo means "back to the opening shot". */
+  /* The world's own logo means "back to the opening shot"; leaving is the Exit pill. */
   const onBrandClick = (event: MouseEvent<HTMLAnchorElement>) => {
-    const { phase, overview } = useUniverse.getState();
-    if (phase === 'explore') {
-      event.preventDefault();
-      overview();
-    }
+    event.preventDefault();
+    useUniverse.getState().overview();
   };
 
   return (
     <header className="uh-bar">
-      <Link href="/" className="uh-brand" aria-label={SITE_NAME} onClick={onBrandClick}>
+      <a href="#main" className="uh-brand" aria-label={BRAND_LABEL} onClick={onBrandClick}>
         <BrandMark />
         <span className="uh-brand-text" aria-hidden>
           <span className="uh-brand-name">{BRAND_NAME}</span>
           {' // '}
           {BRAND_TITLE}
         </span>
-      </Link>
+      </a>
 
       <div className="uh-bar-right">
+        <ExitWorld />
         <nav aria-label="Main" className="uh-nav">
           {navItems.map((item) => (
             <Link key={item.href} href={item.href} className="uh-nav-link">

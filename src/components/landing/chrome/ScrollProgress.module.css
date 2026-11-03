@@ -1,0 +1,100 @@
+/*
+ * Two layers read one progress value (0..1). The fill scales from the left;
+ * the head rides its leading edge as a separate layer, so the scale never
+ * stretches it. With scroll-driven animations both run on the compositor
+ * from the root scroller; without them the component writes `--progress`
+ * from a scroll listener and the same transforms apply.
+ */
+
+.bar {
+  /* The head's glow may hang below the bar, never past its ends. */
+  overflow-x: clip;
+}
+
+.fill,
+.head {
+  position: absolute;
+  inset: 0;
+}
+
+.fill {
+  transform: scaleX(var(--progress, 0));
+  transform-origin: 0 50%;
+  background: linear-gradient(90deg, #4f2ee8 0%, #6d4aff 40%, #9b5cff 78%, #c4a1ff 100%);
+  box-shadow: 0 0 10px rgb(109 74 255 / 0.4);
+}
+
+.head {
+  transform: translateX(calc((var(--progress, 0) - 1) * 100%));
+  /* Fades in over the first few percent, so nothing glows at the top of the page. */
+  opacity: clamp(0, calc(var(--progress, 0) * 40), 1);
+}
+
+/* A short sheen along the leading edge… */
+.head::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 5rem;
+  height: 100%;
+  background: linear-gradient(90deg, rgb(255 255 255 / 0), rgb(255 255 255 / 0.7));
+}
+
+/* …and a glowing point at its tip. */
+.head::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -1px;
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow:
+    0 0 0 1px rgb(155 92 255 / 0.9),
+    0 0 12px 3px rgb(124 77 255 / 0.6);
+  transform: translateY(-50%);
+}
+
+/* Longhands, with the timeline last: the `animation` shorthand resets it. */
+@supports (animation-timeline: scroll()) {
+  .fill,
+  .head {
+    animation-duration: auto;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+    animation-timeline: scroll(root block);
+  }
+
+  .fill {
+    animation-name: grow;
+  }
+
+  .head {
+    animation-name: lead;
+  }
+}
+
+@keyframes grow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes lead {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  3% {
+    opacity: 1;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}

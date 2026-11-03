@@ -1,0 +1,90 @@
+/*
+ * About: the facts grid beside the intro. The portrait and the principles
+ * have their own modules.
+ */
+
+/* Each fact is a <div> of <dt> + <dd> — all a <dl> group may contain — so the
+   icon lives inside the <dt> and is positioned into the left gutter. */
+.fact {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 4.375rem;
+  padding: 0.875rem 1rem 0.875rem 4.25rem;
+  border: 1px solid #e8e5f3;
+  border-radius: 1.1rem;
+  background: rgb(255 255 255 / 0.86);
+  box-shadow:
+    0 1px 2px rgb(30 20 80 / 0.05),
+    0 6px 16px -8px rgb(60 40 160 / 0.14);
+  transition:
+    transform 500ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 300ms,
+    box-shadow 500ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.factIcon {
+  position: absolute;
+  top: 50%;
+  left: 0.875rem;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  translate: 0 -50%;
+  border-radius: 0.8rem;
+  background: #efeafe;
+  color: #5b34f0;
+  transition:
+    transform 700ms cubic-bezier(0.16, 1, 0.3, 1),
+    color 300ms;
+}
+
+.factIcon::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, #4f2ee8 0%, #6d4aff 52%, #9b5cff 100%);
+  opacity: 0;
+  transition: opacity 300ms;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .fact:hover {
+    border-color: rgb(109 74 255 / 0.3);
+    box-shadow:
+      0 2px 4px rgb(30 20 80 / 0.04),
+      0 16px 36px -14px rgb(70 45 190 / 0.26);
+    transform: translateY(-3px);
+  }
+
+  .fact:hover .factIcon {
+    color: #fff;
+    transform: rotate(-12deg) scale(1.05);
+  }
+
+  .fact:hover .factIcon::before {
+    opacity: 1;
+  }
+}
+
+/* Staggered entrance once the list's <Reveal> fires. The fill is `backwards`
+   only: an item holds the first frame through its delay and nothing lingers
+   afterwards, so the hover transform above is never overridden. It animates
+   `translate`, not `transform`, for the same reason. Without JavaScript the
+   attribute never appears and the facts simply render. */
+@media (prefers-reduced-motion: no-preference) {
+  .facts[data-revealed] .fact {
+    animation: fact-in 800ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+    animation-delay: calc(140ms + var(--i, 0) * 90ms);
+  }
+}
+
+@keyframes fact-in {
+  from {
+    opacity: 0;
+    translate: 0 14px;
+  }
+}

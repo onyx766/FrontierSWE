@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, type ElementType, type ReactNode } from 'react';
+import { useEffect, useRef, type ElementType, type HTMLAttributes, type ReactNode } from 'react';
 
 /**
  * Motion primitive 3 — reveal. A 12px rise plus opacity, fired once when the
@@ -53,7 +53,17 @@ function useRevealOnce<T extends HTMLElement>() {
   return ref;
 }
 
-interface RevealProps {
+/**
+ * Attributes passed straight through to the rendered element, e.g. so a
+ * `RevealGroup as="ul"` can carry `role="list"` (Safari drops list semantics
+ * when list-style is none) or a label.
+ */
+type PassThrough = Pick<
+  HTMLAttributes<HTMLElement>,
+  'id' | 'role' | 'aria-label' | 'aria-labelledby' | 'aria-describedby'
+>;
+
+interface RevealProps extends PassThrough {
   children: ReactNode;
   className?: string;
   /** Seconds, matching the previous motion-library API. */
@@ -61,7 +71,7 @@ interface RevealProps {
   as?: ElementType;
 }
 
-export function Reveal({ children, className, delay = 0, as: Tag = 'div' }: RevealProps) {
+export function Reveal({ children, className, delay = 0, as: Tag = 'div', ...rest }: RevealProps) {
   const ref = useRevealOnce<HTMLElement>();
 
   return (
@@ -70,13 +80,14 @@ export function Reveal({ children, className, delay = 0, as: Tag = 'div' }: Reve
       data-reveal=""
       className={className}
       style={delay ? { transitionDelay: `${Math.round(delay * 1000)}ms` } : undefined}
+      {...rest}
     >
       {children}
     </Tag>
   );
 }
 
-interface RevealGroupProps {
+interface RevealGroupProps extends PassThrough {
   children: ReactNode;
   className?: string;
   as?: ElementType;
@@ -87,11 +98,11 @@ interface RevealGroupProps {
  * index needs threading through props and the DOM structure is untouched —
  * children stay direct grid or flex items of the container.
  */
-export function RevealGroup({ children, className, as: Tag = 'div' }: RevealGroupProps) {
+export function RevealGroup({ children, className, as: Tag = 'div', ...rest }: RevealGroupProps) {
   const ref = useRevealOnce<HTMLElement>();
 
   return (
-    <Tag ref={ref} data-reveal-group="" className={className}>
+    <Tag ref={ref} data-reveal-group="" className={className} {...rest}>
       {children}
     </Tag>
   );

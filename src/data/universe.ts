@@ -216,6 +216,29 @@ export const coreStation: StationContent & { bearing: number } = {
   bearing: 180,
 };
 
+/** Where the 3D world lives. The plain portfolio links here; nothing 3D loads before. */
+export const WORLD_PATH = '/world';
+
+/** Query parameter that opens the world at one station, e.g. `/world?at=<project-slug>`. */
+export const WORLD_AT_PARAM = 'at';
+
+/** The station that explains a project, if the world has one. Station ids are project slugs. */
+export function projectStationId(slug: string): string | null {
+  const found = islands.some((island) =>
+    island.stations.some(
+      (station) => station.subject.type === 'project' && station.subject.slug === slug,
+    ),
+  );
+  return found ? slug : null;
+}
+
+/** Link into the world: the opening shot, or straight to one station. */
+export function worldHref(stationId?: string | null): string {
+  return stationId
+    ? `${WORLD_PATH}?${WORLD_AT_PARAM}=${encodeURIComponent(stationId)}`
+    : WORLD_PATH;
+}
+
 /** Every project, then the people-facing stops. The guided tour walks this list. */
 export const tourOrder: string[] = [
   'welcome',
@@ -266,13 +289,16 @@ export const controlsHelp: { keys: string[]; label: string }[] = [
 
 /** Every word on the HUD that does not come from the content above. */
 export const hudCopy = {
+  /** The world's own name in its top bar; the plain site keeps `SITE_NAME`. */
+  brand: { name: 'Ryan', title: 'Engineering Universe' },
+  exit: { label: 'Exit 3D', long: 'Return to portfolio' },
   skipToLog: 'Skip to mission log',
   cta: 'Start a Project',
   menu: { open: 'Open menu', close: 'Close menu' },
   /** Short pill text per `AvailabilityState`; the full label is in `profile.availability`. */
   availability: { available: 'Available', limited: 'Limited', unavailable: 'Booked' },
   yearsUnit: 'years',
-  status: { title: 'System status', link: 'Open the system map' },
+  status: { title: 'System status', link: 'Open the system map on the portfolio' },
   explore: {
     title: 'Explore',
     hint: 'Drag · Scroll · Click',
@@ -287,7 +313,7 @@ export const hudCopy = {
   failure: {
     title: 'The 3D world could not start here',
     body: 'This browser or device could not open WebGL. Nothing is lost: every project and system is on the plain pages.',
-    system: 'Open the system map',
+    system: 'Back to the portfolio',
     projects: 'Browse the projects',
   },
   noScript: 'The 3D world needs JavaScript. Every project below is a plain page.',

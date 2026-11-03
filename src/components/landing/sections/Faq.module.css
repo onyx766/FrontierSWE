@@ -1,0 +1,452 @@
+/*
+ * FAQ: an exclusive accordion built on native <details name="faq">, so it
+ * opens, closes and is keyboard-operable without JavaScript. Where
+ * ::details-content and interpolate-size exist the panel slides open; where
+ * they don't it simply appears. Hover styling is for fine pointers only.
+ * Colours are literal: landing theme variables are only emitted when a
+ * utility uses them.
+ */
+
+.list {
+  display: grid;
+  gap: 0.75rem;
+  /* Lets block-size transition to and from `auto` (inherited by the items). */
+  interpolate-size: allow-keywords;
+}
+
+.item {
+  position: relative;
+  overflow: clip;
+  border: 1px solid #e8e5f3;
+  border-radius: 1.25rem;
+  background-color: rgb(255 255 255 / 0.8);
+  box-shadow:
+    0 1px 2px rgb(30 20 80 / 0.05),
+    0 6px 16px -8px rgb(60 40 160 / 0.14);
+  transition:
+    border-color 300ms,
+    background-color 300ms,
+    box-shadow 500ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Accent edge that draws down the left side while an item is open. */
+.item::before {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  z-index: 1;
+  width: 3px;
+  background: linear-gradient(180deg, #5b34f0, #9b5cff 60%, #60a5fa);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 650ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.item[open] {
+  border-color: rgb(109 74 255 / 0.3);
+  background-color: #fff;
+  box-shadow:
+    0 2px 4px rgb(30 20 80 / 0.04),
+    0 18px 40px -16px rgb(70 45 190 / 0.3);
+}
+
+.item[open]::before {
+  transform: scaleY(1);
+}
+
+/* The panel: height animates where the browser can interpolate to `auto`;
+   allow-discrete keeps the content painted until the close has finished. */
+.item::details-content {
+  block-size: 0;
+  overflow-y: clip;
+  transition-property: block-size, content-visibility;
+  transition-duration: 550ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  transition-behavior: allow-discrete;
+}
+
+.item[open]::details-content {
+  block-size: auto;
+}
+
+.summary {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.05rem 1.05rem 1.05rem 1.3rem;
+  list-style: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 250ms;
+}
+
+.summary::-webkit-details-marker {
+  display: none;
+}
+
+.summary::marker {
+  content: '';
+}
+
+/* Inset ring: the item clips its overflow, so an outset outline would be cut. */
+.summary:focus-visible {
+  border-radius: 1.25rem;
+  outline-offset: -3px;
+}
+
+.index {
+  flex: none;
+  width: 1.6rem;
+  /* Decorative, but still text: kept above 4.5:1 on white. */
+  color: #77728f;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  transition: color 300ms;
+}
+
+.item[open] .index {
+  color: #6d4aff;
+}
+
+.question {
+  flex: 1;
+  min-width: 0;
+  color: #0e0c22;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -0.012em;
+  transition: color 250ms;
+}
+
+.toggle {
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid #d7d2ea;
+  border-radius: 50%;
+  background: #fff;
+  color: #2a2742;
+  transition:
+    border-color 300ms,
+    color 300ms,
+    box-shadow 450ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 450ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.toggle::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, #4f2ee8 0%, #6d4aff 52%, #9b5cff 100%);
+  opacity: 0;
+  transition: opacity 350ms;
+}
+
+/* Open, the plus turns 45° into an ×, with a little overshoot. */
+.toggleIcon {
+  position: relative;
+  width: 1rem;
+  height: 1rem;
+  transition: transform 550ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.item[open] .toggle {
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 10px 22px -10px rgb(109 74 255 / 0.85);
+}
+
+.item[open] .toggle::before {
+  opacity: 1;
+}
+
+.item[open] .toggleIcon {
+  transform: rotate(45deg);
+}
+
+.answer {
+  max-width: 44rem;
+  padding: 0 1.3rem 1.35rem calc(1.3rem + 1.6rem + 1rem);
+  color: #4f4b68;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  transition:
+    opacity 450ms 60ms,
+    translate 550ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.item:not([open]) .answer {
+  opacity: 0;
+  translate: 0 -0.4rem;
+}
+
+/* Fades the answer in as it first renders, where the panel can't animate. */
+@starting-style {
+  .item[open] .answer {
+    opacity: 0;
+    translate: 0 -0.4rem;
+  }
+}
+
+@media (max-width: 479px) {
+  .summary {
+    gap: 0.75rem;
+    padding: 0.95rem 0.9rem 0.95rem 1.05rem;
+  }
+
+  .index {
+    width: 1.35rem;
+  }
+
+  .answer {
+    padding: 0 1.05rem 1.2rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .question {
+    font-size: 1.0625rem;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .item:hover {
+    border-color: rgb(109 74 255 / 0.28);
+    box-shadow:
+      0 2px 4px rgb(30 20 80 / 0.04),
+      0 16px 36px -14px rgb(70 45 190 / 0.26);
+  }
+
+  .summary:hover {
+    background-color: rgb(239 234 254 / 0.6);
+  }
+
+  .summary:hover .question {
+    color: #4a22d6;
+  }
+
+  .summary:hover .toggle {
+    border-color: rgb(109 74 255 / 0.5);
+    transform: scale(1.07);
+  }
+}
+
+/* ── "Still have questions?" card ───────────────────────────────────────── */
+
+.contact {
+  padding: 1.25rem;
+  border-color: transparent;
+  background:
+    radial-gradient(120% 80% at 100% 0%, rgb(240 171 252 / 0.2), rgb(240 171 252 / 0) 60%),
+    radial-gradient(100% 70% at 0% 100%, rgb(147 197 253 / 0.18), rgb(147 197 253 / 0) 60%),
+    #fff;
+  box-shadow:
+    0 2px 4px rgb(30 20 80 / 0.04),
+    0 16px 36px -14px rgb(70 45 190 / 0.26);
+}
+
+/* A small chat illustration: the mark as an avatar, someone typing, a "?". */
+.chat {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 0.65rem;
+  height: 3.1rem;
+}
+
+.avatar {
+  position: relative;
+  flex: none;
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+.avatarRing {
+  position: absolute;
+  inset: -5px;
+  border: 1.5px dashed rgb(109 74 255 / 0.45);
+  border-radius: 50%;
+  animation: spin 14s linear infinite;
+}
+
+.avatarFace {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 26%, #fff, #efeafe 72%);
+  box-shadow:
+    inset 0 0 0 1px #fff,
+    0 8px 18px -8px rgb(70 45 190 / 0.55);
+}
+
+.avatarMark {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+.online {
+  position: absolute;
+  right: -1px;
+  bottom: 1px;
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 0 2px #fff;
+}
+
+.bubble {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 0.3rem;
+  padding: 0.6rem 0.72rem;
+  border: 1px solid #e8e5f3;
+  border-radius: 0.95rem 0.95rem 0.95rem 0.3rem;
+  background: #f7f6fc;
+}
+
+.typingDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #8b74f5;
+  animation: typing 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.typingDot:nth-child(2) {
+  animation-delay: 0.16s;
+}
+
+.typingDot:nth-child(3) {
+  animation-delay: 0.32s;
+}
+
+.sticker {
+  position: absolute;
+  top: -0.15rem;
+  right: 0;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.95rem 0.95rem 0.3rem 0.95rem;
+  background: linear-gradient(135deg, #4f2ee8 0%, #6d4aff 52%, #9b5cff 100%);
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 800;
+  line-height: 1;
+  box-shadow:
+    0 12px 24px -10px rgb(91 52 240 / 0.85),
+    inset 0 1px 0 rgb(255 255 255 / 0.25);
+  transform-origin: 70% 100%;
+  animation: wobble 5.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  transition: rotate 900ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* One bordered field: the mail link, then (once hydrated) the copy button. */
+.mailField {
+  display: flex;
+  align-items: center;
+  height: 2.6rem;
+  padding-inline-end: 0.2rem;
+  border: 1px solid #e8e5f3;
+  border-radius: 0.85rem;
+  background: #fff;
+  transition:
+    border-color 250ms,
+    box-shadow 400ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mail {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 0.5rem;
+  align-self: stretch;
+  min-width: 0;
+  padding: 0 0.5rem 0 0.32rem;
+  border-radius: 0.8rem;
+  color: #2a2742;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  transition: color 250ms;
+}
+
+.mailIcon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 0.6rem;
+  background: #efeafe;
+  color: #5b34f0;
+  transition: transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .contact:hover .sticker {
+    rotate: 360deg;
+  }
+
+  .mailField:hover {
+    border-color: rgb(109 74 255 / 0.4);
+    box-shadow: 0 8px 20px -12px rgb(70 45 190 / 0.45);
+  }
+
+  .mail:hover {
+    color: #4a22d6;
+  }
+
+  .mail:hover .mailIcon {
+    transform: rotate(-12deg) scale(1.06);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes typing {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.45;
+  }
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+@keyframes wobble {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  20% {
+    transform: rotate(-10deg);
+  }
+  40% {
+    transform: rotate(7deg);
+  }
+  60% {
+    transform: rotate(-3deg);
+  }
+  75% {
+    transform: rotate(0deg);
+  }
+}

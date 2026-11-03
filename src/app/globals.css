@@ -46,6 +46,53 @@
   --container-site: 84rem;
 }
 
+/* ── Landing page (light) ───────────────────────────────────────────────────
+   Used only under `.lp-root`, the light homepage in `src/app/(landing)`.
+   Prefixed `lp-` so they can never collide with the dark site's tokens.
+   `static`: Tailwind otherwise emits only the variables some utility class
+   uses, and the landing's CSS modules read these as var(--…) directly. */
+@theme static {
+  --color-lp-bg: #f7f6fc;
+  --color-lp-surface: #ffffff;
+  --color-lp-surface-2: #f4f2fc;
+  --color-lp-tint: #efeafe;
+  --color-lp-ink: #0e0c22;
+  --color-lp-ink-2: #2a2742;
+  --color-lp-body: #4f4b68;
+  --color-lp-muted: #6f6b8a;
+  --color-lp-faint: #aca8c4;
+  --color-lp-line: #e8e5f3;
+  --color-lp-line-strong: #d7d2ea;
+  --color-lp-violet: #6d4aff;
+  --color-lp-violet-600: #5b34f0;
+  --color-lp-violet-700: #4a22d6;
+  --color-lp-indigo: #4f46e5;
+  --color-lp-purple: #9b5cff;
+  --color-lp-lilac: #c9bbff;
+  --color-lp-sky: #60a5fa;
+  --color-lp-pink: #f0abfc;
+  --color-lp-green: #22c55e;
+  --color-lp-night: #121029;
+  --color-lp-night-2: #1b1840;
+  --color-lp-night-line: #2d2858;
+
+  --shadow-lp-sm: 0 1px 2px rgb(30 20 80 / 0.05), 0 6px 16px -8px rgb(60 40 160 / 0.14);
+  --shadow-lp-md: 0 2px 4px rgb(30 20 80 / 0.04), 0 16px 36px -14px rgb(70 45 190 / 0.26);
+  --shadow-lp-lg: 0 4px 10px rgb(30 20 80 / 0.05), 0 30px 64px -22px rgb(70 45 190 / 0.36);
+  --shadow-lp-glow: 0 12px 32px -10px rgb(109 74 255 / 0.6);
+
+  --radius-lp: 1.125rem;
+  --radius-lp-lg: 1.5rem;
+
+  --animate-lp-float: lp-float 6s var(--ease-in-out-soft) infinite;
+  --animate-lp-spin: lp-spin 14s linear infinite;
+  --animate-lp-spin-slow: lp-spin 40s linear infinite;
+  --animate-lp-spin-rev: lp-spin 22s linear infinite reverse;
+  --animate-lp-pulse-ring: lp-pulse-ring 2.4s var(--ease-out-expo) infinite;
+  --animate-lp-shimmer: lp-shimmer 5s linear infinite;
+  --animate-lp-gradient-pan: lp-gradient-pan 8s var(--ease-in-out-soft) infinite;
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    BASE
    ═══════════════════════════════════════════════════════════════════════════ */
@@ -326,6 +373,41 @@
   html[data-js] [data-reveal-group] > *:nth-child(8) { transition-delay: 385ms; }
   html[data-js] [data-reveal-group] > *:nth-child(9) { transition-delay: 440ms; }
   html[data-js] [data-reveal-group] > *:nth-child(n + 10) { transition-delay: 495ms; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   WORLD PORTAL
+   The miniature on the homepage's "Explore my 3D world" card. SVG and CSS
+   only: the real world's code loads when the visitor goes through the link.
+   Rotation is around each group's local origin, which its parent translates
+   to the ring's centre. Stopped by the reduced-motion rule below.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@keyframes portal-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes portal-float {
+  50% {
+    transform: translateY(-2.5px);
+  }
+}
+
+.portal-orbit,
+.portal-runner {
+  transform-origin: 0 0;
+  animation: portal-spin 60s linear infinite;
+}
+
+.portal-runner {
+  animation-duration: 12s;
+  animation-direction: reverse;
+}
+
+.portal-crystal {
+  animation: portal-float 5s ease-in-out infinite;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -671,6 +753,44 @@
 
   .uh-nav-link:hover {
     color: var(--uh-blue);
+  }
+
+  /* Leaving the world. On screen in every view and at every width. */
+  .uh-exit {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(7 * var(--u));
+    height: calc(37 * var(--u));
+    min-height: 32px;
+    padding: 0 calc(15 * var(--u)) 0 calc(12 * var(--u));
+    margin-right: calc(34 * var(--u));
+    border: 1px solid rgb(130 180 240 / 0.3);
+    border-radius: 999px;
+    background: rgb(5 11 26 / 0.78);
+    color: #edeef2;
+    font-size: calc(14.5 * var(--u));
+    font-weight: 500;
+    white-space: nowrap;
+    transition:
+      border-color 180ms,
+      color 180ms;
+  }
+
+  .uh-exit:hover {
+    border-color: rgb(130 180 240 / 0.65);
+    color: var(--uh-blue);
+  }
+
+  .uh-exit-arrow {
+    width: calc(15 * var(--u));
+    height: calc(15 * var(--u));
+    min-width: 13px;
+    min-height: 13px;
+    transition: transform 180ms;
+  }
+
+  .uh-exit:hover .uh-exit-arrow {
+    transform: translateX(-2px);
   }
 
   .uh-available {
@@ -2069,6 +2189,13 @@
       display: none;
     }
 
+    .uh-exit {
+      height: 38px;
+      margin-right: 0;
+      padding: 0 13px 0 11px;
+      font-size: 13px;
+    }
+
     .uh-menu .uh-available {
       margin-right: 0;
     }
@@ -2189,6 +2316,13 @@
     }
   }
 
+  /* Smallest phones: the mark alone carries the brand, so Exit always fits. */
+  @media (max-width: 420px) {
+    .uh-brand-text {
+      display: none;
+    }
+  }
+
   @media (max-height: 640px) and (min-width: 768px) {
     .uh-root {
       --uh-map-w: 170px;
@@ -2232,3 +2366,523 @@
 }
 
 /* ═══════════════════════════ END UNIVERSE HUD ═══════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LANDING  — the light homepage, `src/app/(landing)`.
+   Everything is scoped under `.lp-root` or prefixed `lp-`, so the dark site
+   and the 3D world are untouched. Section-specific styling lives in each
+   section's CSS module; this block holds only what several sections share.
+   Infinite animations are written so their end state is a sensible still
+   frame: the reduced-motion rule above runs each one once, instantly.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@keyframes lp-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes lp-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes lp-pulse-ring {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.7;
+  }
+  80%,
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+
+@keyframes lp-shimmer {
+  to {
+    background-position: 200% center;
+  }
+}
+
+@keyframes lp-gradient-pan {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes lp-rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes lp-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes lp-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes lp-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@layer base {
+  /* The light page owns the overscroll area and the scrollbar while it is shown. */
+  html:has(.lp-root) {
+    scrollbar-color: #cbc3ec transparent;
+  }
+
+  html:has(.lp-root) ::-webkit-scrollbar-track {
+    background: var(--color-lp-bg);
+  }
+
+  html:has(.lp-root) ::-webkit-scrollbar-thumb {
+    background: #cbc3ec;
+    border-color: var(--color-lp-bg);
+  }
+
+  html:has(.lp-root) ::-webkit-scrollbar-thumb:hover {
+    background: #a99be6;
+  }
+
+  body:has(.lp-root) {
+    background-color: var(--color-lp-bg);
+    color: var(--color-lp-body);
+    color-scheme: light;
+  }
+
+  .lp-root,
+  .lp-root * {
+    border-color: var(--color-lp-line);
+  }
+
+  .lp-root h1,
+  .lp-root h2,
+  .lp-root h3,
+  .lp-root h4 {
+    color: var(--color-lp-ink);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+  }
+
+  .lp-root ::selection {
+    background-color: var(--color-lp-violet);
+    color: #fff;
+  }
+
+  .lp-root :focus-visible {
+    outline: 2px solid var(--color-lp-violet);
+    outline-offset: 3px;
+  }
+}
+
+@utility lp-container {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 77rem;
+  padding-inline: 1.25rem;
+
+  @media (min-width: 768px) {
+    padding-inline: 2rem;
+  }
+
+  @media (min-width: 1280px) {
+    padding-inline: 2.5rem;
+  }
+}
+
+/** Vertical rhythm for a landing section; the offset clears the sticky nav. */
+@utility lp-section {
+  position: relative;
+  padding-block: clamp(4.5rem, 9vw, 7.5rem);
+  scroll-margin-top: 4.5rem;
+}
+
+@utility lp-h1 {
+  font-size: clamp(2.9rem, 6.4vw, 5.25rem);
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+  font-weight: 800;
+}
+
+@utility lp-h2 {
+  font-size: clamp(2.1rem, 3.6vw, 3rem);
+  line-height: 1.04;
+  letter-spacing: -0.04em;
+  font-weight: 800;
+}
+
+@utility lp-h3 {
+  font-size: 1.125rem;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+  font-weight: 700;
+}
+
+@utility lp-eyebrow {
+  font-size: 0.75rem;
+  line-height: 1;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-lp-ink-2);
+}
+
+@utility lp-lead {
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: var(--color-lp-body);
+}
+
+/** Violet gradient ink for accent words ("Ship", "8+ Years"). */
+@utility lp-text-gradient {
+  background-image: linear-gradient(100deg, #5b34f0 0%, #7c4dff 45%, #a46bff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+@utility lp-bg-gradient {
+  background-image: linear-gradient(100deg, #4f2ee8 0%, #6d4aff 52%, #9b5cff 100%);
+}
+
+/** Handwritten annotation face (Caveat, self-hosted; the variable is set by the landing layout). */
+@utility font-hand {
+  font-family: var(--font-hand-family), 'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive;
+}
+
+/** True Geist italic (self-hosted), rather than a synthesised slant. */
+@utility lp-italic {
+  font-family: var(--font-geist-italic-family), var(--font-geist-sans), ui-sans-serif, sans-serif;
+  font-style: italic;
+}
+
+@layer components {
+  /* ── Buttons (rendered by primitives/LpButton) ──────────────────────────── */
+
+  .lp-btn {
+    position: relative;
+    isolation: isolate;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    height: 2.875rem;
+    padding-inline: 1.4rem;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      transform 300ms var(--ease-out-expo),
+      box-shadow 300ms var(--ease-out-expo),
+      background-color 200ms,
+      background-position 700ms var(--ease-out-expo),
+      border-color 200ms,
+      color 200ms;
+  }
+
+  .lp-btn:hover {
+    transform: translateY(-2px);
+  }
+
+  .lp-btn:active {
+    transform: translateY(0) scale(0.98);
+    transition-duration: 80ms;
+  }
+
+  .lp-btn[data-size='sm'] {
+    height: 2.375rem;
+    padding-inline: 1.05rem;
+    gap: 0.45rem;
+    font-size: 0.8125rem;
+  }
+
+  .lp-btn[data-size='lg'] {
+    height: 3.25rem;
+    padding-inline: 1.75rem;
+    font-size: 1rem;
+  }
+
+  .lp-btn-icon {
+    width: 1.05em;
+    height: 1.05em;
+    transition: transform 400ms var(--ease-out-expo);
+  }
+
+  .lp-btn:hover .lp-btn-icon[data-icon='arrow-right'] {
+    transform: translateX(3px);
+  }
+
+  /* The diagonal arrow swings round to point forward: a small rotation cue. */
+  .lp-btn:hover .lp-btn-icon[data-icon='arrow-up-right'] {
+    transform: rotate(45deg);
+  }
+
+  .lp-btn-dark {
+    background-color: #15122e;
+    color: #fff;
+    box-shadow: 0 10px 22px -12px rgb(21 18 46 / 0.7);
+  }
+
+  .lp-btn-dark:hover {
+    background-color: #221c4d;
+    box-shadow: 0 16px 30px -12px rgb(50 30 140 / 0.6);
+  }
+
+  .lp-btn-outline {
+    border-color: var(--color-lp-line-strong);
+    background-color: rgb(255 255 255 / 0.85);
+    color: var(--color-lp-ink);
+  }
+
+  .lp-btn-outline:hover {
+    border-color: rgb(109 74 255 / 0.5);
+    color: var(--color-lp-violet-700);
+    box-shadow: var(--shadow-lp-md);
+  }
+
+  .lp-btn-gradient {
+    overflow: hidden;
+    background-image: linear-gradient(100deg, #4f2ee8 0%, #6d4aff 45%, #9b5cff 75%, #6d4aff 100%);
+    background-size: 220% 100%;
+    background-position: 0% 50%;
+    color: #fff;
+    box-shadow:
+      0 12px 26px -12px rgb(91 52 240 / 0.85),
+      inset 0 1px 0 rgb(255 255 255 / 0.22);
+  }
+
+  .lp-btn-gradient:hover {
+    background-position: 100% 50%;
+    box-shadow:
+      0 18px 36px -12px rgb(91 52 240 / 0.9),
+      inset 0 1px 0 rgb(255 255 255 / 0.25);
+  }
+
+  /* A light sweep across the face on hover. Behind the label, above the fill. */
+  .lp-btn-gradient::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: linear-gradient(115deg, transparent 35%, rgb(255 255 255 / 0.42) 50%, transparent 65%);
+    transform: translateX(-110%);
+    transition: transform 850ms var(--ease-out-expo);
+  }
+
+  .lp-btn-gradient:hover::after {
+    transform: translateX(110%);
+  }
+
+  .lp-btn-light {
+    background-color: #fff;
+    color: var(--color-lp-ink);
+    box-shadow: 0 10px 24px -14px rgb(0 0 0 / 0.5);
+  }
+
+  .lp-btn-light:hover {
+    color: var(--color-lp-violet-700);
+    box-shadow: 0 16px 32px -14px rgb(109 74 255 / 0.7);
+  }
+
+  .lp-btn-ghost-dark {
+    border-color: rgb(255 255 255 / 0.16);
+    background-color: rgb(255 255 255 / 0.06);
+    color: #fff;
+  }
+
+  .lp-btn-ghost-dark:hover {
+    border-color: rgb(255 255 255 / 0.32);
+    background-color: rgb(255 255 255 / 0.12);
+  }
+
+  /* ── Cards and surfaces ─────────────────────────────────────────────────── */
+
+  .lp-card {
+    position: relative;
+    border: 1px solid var(--color-lp-line);
+    border-radius: var(--radius-lp);
+    background-color: #fff;
+    box-shadow: var(--shadow-lp-sm);
+  }
+
+  .lp-card-hover {
+    transition:
+      transform 450ms var(--ease-out-expo),
+      box-shadow 450ms var(--ease-out-expo),
+      border-color 300ms;
+  }
+
+  .lp-card-hover:hover {
+    transform: translateY(-4px);
+    border-color: rgb(109 74 255 / 0.3);
+    box-shadow: var(--shadow-lp-md);
+  }
+
+  .lp-glass {
+    border: 1px solid rgb(255 255 255 / 0.9);
+    background-color: rgb(255 255 255 / 0.72);
+    box-shadow: var(--shadow-lp-sm);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    backdrop-filter: blur(16px) saturate(1.4);
+  }
+
+  .lp-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    height: 1.75rem;
+    padding-inline: 0.7rem;
+    border: 1px solid var(--color-lp-line);
+    border-radius: 999px;
+    background-color: #fff;
+    color: var(--color-lp-ink-2);
+    font-size: 0.75rem;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  /* Cursor-following highlight. `--mx` / `--my` are written by <Tilt>.
+     Shown on hover for fine pointers only: a tap would otherwise leave it on. */
+  .lp-spotlight::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(
+      340px circle at var(--mx, 50%) var(--my, 50%),
+      rgb(124 77 255 / 0.12),
+      transparent 65%
+    );
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 400ms;
+  }
+
+  .lp-spotlight-dark::after {
+    background: radial-gradient(
+      340px circle at var(--mx, 50%) var(--my, 50%),
+      rgb(190 170 255 / 0.14),
+      transparent 65%
+    );
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .lp-spotlight:hover::after {
+      opacity: 1;
+    }
+  }
+
+  /* A 1px gradient edge, drawn with a mask so the card's own fill shows through. */
+  .lp-gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    background: linear-gradient(
+      135deg,
+      rgb(109 74 255 / 0.75),
+      rgb(155 92 255 / 0.15) 42%,
+      rgb(96 165 250 / 0.55)
+    );
+    pointer-events: none;
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+  }
+
+  /* Pointer tilt. <Tilt> writes --rx/--ry; --tilt-lift is how far it rises on
+     hover. The timing is in variables so a CSS module that adds its own
+     transition can include `transform var(--tilt-duration) var(--tilt-ease)`
+     rather than overriding it: module rules beat this layer. */
+  .lp-tilt {
+    --rx: 0deg;
+    --ry: 0deg;
+    --lift: 0px;
+    --tilt-duration: 700ms;
+    --tilt-ease: var(--ease-out-expo);
+    transform: perspective(1000px) translateY(var(--lift)) rotateX(var(--rx)) rotateY(var(--ry));
+    transform-style: preserve-3d;
+    transition: transform var(--tilt-duration) var(--tilt-ease);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .lp-tilt:hover {
+      --lift: calc(var(--tilt-lift, 0px) * -1);
+    }
+  }
+
+  .lp-tilt[data-tilting] {
+    --tilt-duration: 160ms;
+    --tilt-ease: linear;
+  }
+
+  .lp-skip {
+    position: fixed;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 100;
+    padding: 0.6rem 1rem;
+    border-radius: 999px;
+    background: var(--color-lp-ink);
+    color: #fff;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transform: translateY(-200%);
+    transition: transform 200ms;
+  }
+
+  .lp-skip:focus {
+    transform: none;
+  }
+}
+
+/* Landing reveals travel further and settle slower than the dark site's. */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-js] .lp-root [data-reveal],
+  html[data-js] .lp-root [data-reveal-group] > * {
+    transform: translateY(26px);
+    transition-duration: 850ms;
+  }
+
+  html[data-js] .lp-root [data-reveal][data-revealed],
+  html[data-js] .lp-root [data-reveal-group][data-revealed] > * {
+    transform: none;
+  }
+}
+
+/* ═══════════════════════════════ END LANDING ═══════════════════════════════ */

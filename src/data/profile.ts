@@ -25,8 +25,7 @@ export const profile: Profile = {
       'Taking on new engineering work now — from a single broken endpoint to a full production AI system.',
   },
   contact: {
-    // [PLACEHOLDER] — replace with your real address.
-    email: 'hello@example.com',
+    email: 'ryanma02228@gmail.com',
     // [PLACEHOLDER] — replace or remove.
     github: 'https://github.com/example',
     // [PLACEHOLDER] — replace or remove.

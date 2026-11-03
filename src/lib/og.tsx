@@ -167,7 +167,7 @@ export function OgCard({ kicker, title, description, tags, status }: OgCardProps
             paddingLeft: 24,
           }}
         >
-          Ryan // Engineering Universe
+          Ryan // Engineering Network
         </div>
       </div>
     </div>

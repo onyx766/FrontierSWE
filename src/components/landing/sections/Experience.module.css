@@ -1,0 +1,393 @@
+/*
+ * Experience (#experience): heading, timeline, summit illustration.
+ *
+ * ExperienceSection writes the state: data-inview on the section while it is
+ * near the viewport (decorative loops run), data-lit on each timeline entry as
+ * it crosses the reading line. Every "before" state is scoped to
+ * html[data-js] without reduced motion, so the section reads complete without
+ * JavaScript and settles on a still frame with reduced motion.
+ *
+ * --hi (0 or 1) is the highlight of an entry or of a milestone. Hovering
+ * either one sets it on both, through :has() on the section; everything that
+ * reacts to the highlight is derived from that one number.
+ */
+
+.section {
+  isolation: isolate;
+}
+
+:global(html[data-js]) .section:not([data-inview]) * {
+  animation-play-state: paused;
+}
+
+/* Above the illustration, but the pointer passes through the empty space to
+   reach the milestones. */
+.content {
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.lead,
+.timeline {
+  pointer-events: auto;
+}
+
+/* ── "Full experience" link ───────────────────────────────────────────────── */
+
+.more {
+  position: relative;
+  padding-block: 0.25rem;
+}
+
+.more::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 1.375rem;
+  bottom: 0;
+  height: 1.5px;
+  border-radius: 1px;
+  background: currentColor;
+  opacity: 0.3;
+  transition: opacity 300ms ease;
+}
+
+.more:hover::after,
+.more:focus-visible::after {
+  opacity: 1;
+}
+
+/* ── Timeline ─────────────────────────────────────────────────────────────── */
+
+.timeline {
+  --rail-x: 0.75rem; /* centre of the node column */
+  --node: 1rem;
+  --pad-y: 0.875rem;
+  --node-y: calc(var(--pad-y) + 0.8125rem); /* centre of the period pill */
+  --gap: 0.375rem;
+  position: relative;
+  display: grid;
+  gap: var(--gap);
+  max-width: 40rem;
+}
+
+@media (min-width: 40rem) {
+  .timeline {
+    --rail-x: 1rem;
+    --pad-y: 1.125rem;
+  }
+}
+
+.entry {
+  --hi: 0;
+  position: relative;
+  padding-left: calc(var(--rail-x) * 2 + 0.375rem);
+}
+
+/* One rail segment per entry, from its node down to the next node; the last
+   entry's segment is a short tail that fades out. Track below, fill on top. */
+.rail {
+  position: absolute;
+  left: calc(var(--rail-x) - 1px);
+  top: var(--node-y);
+  bottom: calc(-1 * (var(--gap) + var(--node-y)));
+  width: 2px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--color-lp-line);
+}
+
+.rail::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in oklab, var(--color-lp-violet), var(--color-lp-lilac) var(--rail-a, 0%)),
+    color-mix(in oklab, var(--color-lp-violet), var(--color-lp-lilac) var(--rail-b, 100%))
+  );
+  transform-origin: top;
+  transition: transform 800ms var(--ease-in-out-soft);
+}
+
+.entry:last-child .rail {
+  bottom: auto;
+  height: 4.5rem;
+  background: linear-gradient(to bottom, var(--color-lp-line), transparent);
+}
+
+.entry:last-child .rail::after {
+  background: linear-gradient(to bottom, var(--color-lp-lilac), rgb(215 210 234 / 0.6) 55%, transparent);
+}
+
+.node {
+  position: absolute;
+  z-index: 1;
+  left: calc(var(--rail-x) - var(--node) / 2);
+  top: calc(var(--node-y) - var(--node) / 2);
+  width: var(--node);
+  height: var(--node);
+  border: 2px solid var(--color-lp-violet);
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgb(109 74 255 / 0.12);
+  scale: calc(1 + var(--hi) * 0.3);
+  transition:
+    scale 450ms var(--ease-out-expo),
+    border-color 400ms ease,
+    box-shadow 400ms ease;
+}
+
+/* Lighting waits for the rail fill to arrive from the entry above. */
+.entry[data-lit] .node {
+  transition-delay: 0ms, 450ms, 450ms;
+}
+
+/* A dashed orbit that spins in around the node of the highlighted entry. */
+.node::before {
+  content: '';
+  position: absolute;
+  inset: -7px;
+  border: 1.5px dashed rgb(109 74 255 / 0.55);
+  border-radius: 999px;
+  opacity: var(--hi);
+  scale: calc(0.55 + var(--hi) * 0.45);
+  transition:
+    opacity 300ms ease,
+    scale 500ms var(--ease-out-expo);
+  animation: spin 8s linear infinite;
+}
+
+/* The current role: a filled centre and a slow pulse. */
+.entry[data-current] .node {
+  background: radial-gradient(circle, var(--color-lp-violet) 0 32%, #fff 38%);
+  box-shadow:
+    0 0 0 5px rgb(109 74 255 / 0.16),
+    0 6px 16px -4px rgb(109 74 255 / 0.6);
+}
+
+.entry[data-current] .node::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border: 2px solid var(--color-lp-violet);
+  border-radius: 999px;
+  opacity: 0;
+  animation: ping 2.8s var(--ease-out-expo) infinite;
+}
+
+/* ── Entry card: transparent until highlighted ─────────────────────────────── */
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: var(--pad-y) 1rem;
+  border: 1px solid rgb(226 221 245 / var(--hi));
+  border-radius: var(--radius-lp);
+  background-color: rgb(255 255 255 / calc(var(--hi) * 0.9));
+  box-shadow:
+    0 2px 4px rgb(30 20 80 / calc(var(--hi) * 0.04)),
+    0 18px 40px -18px rgb(70 45 190 / calc(var(--hi) * 0.34));
+  translate: 0 calc(var(--hi) * -3px);
+  transition:
+    translate 450ms var(--ease-out-expo),
+    background-color 300ms ease,
+    border-color 300ms ease,
+    box-shadow 450ms var(--ease-out-expo);
+}
+
+.period {
+  order: -1;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: 1.625rem;
+  margin-bottom: 0.625rem;
+  padding-inline: 0.75rem;
+  border-radius: 999px;
+  background-color: var(--color-lp-tint);
+  color: color-mix(in srgb, var(--color-lp-ink-2) calc((1 - var(--hi)) * 100%), #fff);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.005em;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  transition: color 300ms ease;
+}
+
+.period::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(100deg, #4f2ee8, #6d4aff 52%, #9b5cff);
+  opacity: var(--hi);
+  transition: opacity 300ms ease;
+}
+
+/* "Present": a small live dot. */
+.live {
+  position: relative;
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 999px;
+  background-color: color-mix(in srgb, var(--color-lp-violet) calc((1 - var(--hi)) * 100%), #fff);
+  transition: background-color 300ms ease;
+}
+
+.live::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-color: inherit;
+  opacity: 0;
+  animation: ping 2.2s var(--ease-out-expo) infinite;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  height: 1.5rem;
+  padding-inline: 0.6rem;
+  border: 1px solid rgb(109 74 255 / calc(0.12 + var(--hi) * 0.18));
+  border-radius: 999px;
+  background-color: rgb(255 255 255 / 0.85);
+  color: var(--color-lp-ink-2);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  transition: border-color 300ms ease;
+}
+
+@media (min-width: 40rem) {
+  .card {
+    display: grid;
+    grid-template-columns: 7.25rem minmax(0, 1fr);
+    column-gap: 1.25rem;
+    padding-inline: 1.25rem;
+  }
+
+  .period {
+    order: 0;
+    grid-column: 1;
+    grid-row: 1 / span 3;
+    align-self: start;
+    justify-self: start;
+    margin: 0;
+  }
+
+  .role,
+  .summary,
+  .tech {
+    grid-column: 2;
+  }
+}
+
+/* ── Highlight: hover an entry or its milestone (fine pointers only) ───────── */
+
+@media (hover: hover) and (pointer: fine) {
+  /* Its own rule: a list containing :has() is dropped whole where :has() is unsupported. */
+  .entry:hover {
+    --hi: 1;
+  }
+
+  .section:has([data-milestone='0']:hover) .entry[data-entry='0'],
+  .section:has([data-milestone='1']:hover) .entry[data-entry='1'],
+  .section:has([data-milestone='2']:hover) .entry[data-entry='2'],
+  .section:has([data-milestone='3']:hover) .entry[data-entry='3'],
+  .section:has([data-milestone='4']:hover) .entry[data-entry='4'],
+  .section:has([data-milestone='5']:hover) .entry[data-entry='5'],
+  .section:has([data-milestone='6']:hover) .entry[data-entry='6'] {
+    --hi: 1;
+  }
+
+  .section:has(.entry[data-entry='0']:hover) [data-milestone='0'],
+  .section:has(.entry[data-entry='1']:hover) [data-milestone='1'],
+  .section:has(.entry[data-entry='2']:hover) [data-milestone='2'],
+  .section:has(.entry[data-entry='3']:hover) [data-milestone='3'],
+  .section:has(.entry[data-entry='4']:hover) [data-milestone='4'],
+  .section:has(.entry[data-entry='5']:hover) [data-milestone='5'],
+  .section:has(.entry[data-entry='6']:hover) [data-milestone='6'] {
+    --hi: 1;
+  }
+}
+
+/* ── Illustration placement ────────────────────────────────────────────────── */
+
+/* Below the timeline on smaller screens, bleeding off the right edge and down
+   into the section's bottom padding (the negative margin mirrors lp-section). */
+.art {
+  --summit-fade-left: 12%;
+  position: relative;
+  z-index: 0;
+  width: min(100%, 44rem);
+  margin: -0.5rem 0 calc(-1 * clamp(4.5rem, 9vw, 7.5rem)) auto;
+}
+
+/* Wide enough for the sky to tuck under the last entry. */
+@media (min-width: 48rem) {
+  .art {
+    --summit-fade-left: 22%;
+    margin-top: -3.5rem;
+  }
+}
+
+/* Desktop: the third column, the full height of the section against its right
+   edge. The scene keeps its ratio at the bottom; the height above it is sky. */
+@media (min-width: 80rem) {
+  .art {
+    --summit-aspect: auto;
+    --summit-fade-left: 32%;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(48%, 54rem);
+    margin: 0;
+  }
+}
+
+/* ── Before the reader gets there ──────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Grey until lit; pointing at one lights it early. */
+  :global(html[data-js]) .entry:not([data-lit]):not([data-current]):not(:hover) .node {
+    border-color: var(--color-lp-line-strong);
+    box-shadow: 0 0 0 4px rgb(109 74 255 / 0);
+  }
+
+  :global(html[data-js]) .entry:not(:last-child):not(:has(+ [data-lit])) .rail::after,
+  :global(html[data-js]) .entry:last-child:not([data-lit]) .rail::after {
+    transform: scaleY(0);
+  }
+}
+
+/* ── Keyframes ─────────────────────────────────────────────────────────────── */
+
+@keyframes ping {
+  0% {
+    transform: scale(1);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+@keyframes spin {
+  to {
+    rotate: 360deg;
+  }
+}

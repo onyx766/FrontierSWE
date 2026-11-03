@@ -266,11 +266,11 @@ describe('stations and briefings', () => {
     }
   });
 
-  it('ends every project briefing with a link to the case study', () => {
+  it('ends every project briefing with a link to the projects section', () => {
     for (const project of projects) {
       const briefing = world.briefing(project.slug);
       expect(briefing.beats[briefing.beats.length - 1]?.link?.href).toBe(
-        `/projects/${project.slug}`,
+        '/#projects',
       );
       expect(briefing.placeholder).toBe(project.placeholder);
     }

@@ -14,18 +14,18 @@ describe('stationGroups', () => {
 });
 
 describe('stationHref', () => {
-  it('sends a project station to its case study', () => {
+  it('sends a project station to the projects section', () => {
     for (const station of world.stations) {
       const { subject } = station.content;
       if (subject.type !== 'project') continue;
       expect(getProject(subject.slug)).toBeDefined();
-      expect(stationHref(station.content)).toBe(`/projects/${subject.slug}`);
+      expect(stationHref(station.content)).toBe('/#projects');
     }
   });
 
   it('gives every station a site path', () => {
     for (const station of world.stations) {
-      expect(stationHref(station.content)).toMatch(/^\/[a-z]/);
+      expect(stationHref(station.content)).toMatch(/^\/#[a-z]/);
     }
   });
 });

@@ -1,0 +1,157 @@
+/*
+ * The orbit behind the engagement cards: a soft pastel mesh at every width,
+ * and from 1280px three elliptical rings drawn just larger than the card grid,
+ * so they show above and below it and in the side margins. Dots flow round
+ * the rings, a comet runs the outermost, and planets slip behind the cards.
+ * Each animation's resting state is a sensible still frame for the
+ * reduced-motion rule; the planets fall back to their inline offset-distance.
+ */
+
+@keyframes flow {
+  to {
+    stroke-dashoffset: -1000;
+  }
+}
+
+@keyframes travel {
+  from {
+    offset-distance: 0%;
+  }
+  to {
+    offset-distance: 100%;
+  }
+}
+
+@keyframes drift {
+  to {
+    transform: translate(-50%, -50%) rotate(10deg) scale(1.08);
+  }
+}
+
+.decor {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Set by <EngagementOrbitPause> while the orbit is offscreen. */
+.decor[data-paused] * {
+  animation-play-state: paused;
+}
+
+/* Capped height: on phones the stacked cards are ~1800px tall, and a layer
+   half as tall again would be a needlessly large surface to rotate. */
+.mesh {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(74rem, 140%);
+  height: min(150%, 56rem);
+  transform: translate(-50%, -50%);
+  background:
+    radial-gradient(36% 40% at 28% 46%, rgb(155 92 255 / 0.15), transparent 72%),
+    radial-gradient(32% 38% at 72% 56%, rgb(240 171 252 / 0.22), transparent 72%),
+    radial-gradient(26% 32% at 54% 22%, rgb(253 186 116 / 0.15), transparent 72%),
+    radial-gradient(28% 34% at 44% 84%, rgb(96 165 250 / 0.1), transparent 72%);
+  animation: drift 22s var(--ease-in-out-soft, cubic-bezier(0.4, 0, 0.2, 1)) infinite alternate;
+}
+
+/* Fixed 1400×680 coordinates, centred on the grid: the SVG rings and the
+   planets' motion paths share them. Only shown where the cards sit in one
+   row (the grid is then 1152px wide); wider than small laptops, so the
+   page root's overflow-x: clip trims the ends. */
+.stage {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1400px;
+  height: 680px;
+  margin: -340px 0 0 -700px;
+}
+
+@media (min-width: 1280px) {
+  .stage {
+    display: block;
+  }
+}
+
+.rings {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+}
+
+/* pathLength is 1000 on the animated rings, so these dash values are in
+   thousandths of a lap; each period divides 1000, so the loop has no seam. */
+.ringDots {
+  stroke: rgb(124 77 255 / 0.5);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-dasharray: 0 5;
+  animation: flow 150s linear infinite;
+}
+
+.ringInner {
+  stroke: rgb(167 139 250 / 0.5);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 0 8;
+  animation: flow 110s linear infinite reverse;
+}
+
+.comet {
+  stroke: #8b5cf6;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-dasharray: 50 950;
+  filter: drop-shadow(0 0 5px rgb(139 92 246 / 0.85));
+  animation: flow 18s linear infinite;
+}
+
+/* Paths match the outer (hairline) and dotted ellipses in the SVG. */
+.planet {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  offset-rotate: 0deg;
+  animation: travel 56s linear infinite;
+}
+
+.onOuter {
+  offset-path: path('M 40 340 A 660 268 0 1 1 1360 340 A 660 268 0 1 1 40 340 Z');
+}
+
+.onDots {
+  offset-path: path('M 90 340 A 610 240 0 1 1 1310 340 A 610 240 0 1 1 90 340 Z');
+  animation-direction: reverse;
+}
+
+.violet {
+  background: radial-gradient(circle at 35% 30%, #fff 0 10%, #a78bfa 34%, #5b34f0 100%);
+  box-shadow:
+    0 0 0 4px rgb(109 74 255 / 0.12),
+    0 0 18px rgb(109 74 255 / 0.6);
+}
+
+.pink {
+  background: radial-gradient(circle at 35% 30%, #fff 0 10%, #f5c2fd 34%, #d946ef 100%);
+  box-shadow:
+    0 0 0 4px rgb(217 70 239 / 0.1),
+    0 0 16px rgb(217 70 239 / 0.5);
+}
+
+.sky {
+  background: radial-gradient(circle at 35% 30%, #fff 0 10%, #bfdbfe 34%, #3b82f6 100%);
+  box-shadow:
+    0 0 0 4px rgb(59 130 246 / 0.1),
+    0 0 16px rgb(59 130 246 / 0.5);
+}
+
+.peach {
+  background: radial-gradient(circle at 35% 30%, #fff 0 10%, #fed7aa 34%, #f97316 100%);
+  box-shadow:
+    0 0 0 4px rgb(249 115 22 / 0.1),
+    0 0 14px rgb(249 115 22 / 0.45);
+}

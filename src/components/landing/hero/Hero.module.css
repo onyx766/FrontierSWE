@@ -1,0 +1,339 @@
+/*
+ * Hero. Entrance animations are CSS (they run without JavaScript, and the
+ * global reduced-motion rule ends each one instantly on its final frame).
+ * Pointer parallax uses the `translate` property, written by <HeroParallax>
+ * as --px/--py, so it composes with the `transform` the entrances animate.
+ */
+
+.hero {
+  --px: 0;
+  --py: 0;
+}
+
+/* ── Backdrop ─────────────────────────────────────────────────────────────── */
+
+.backdrop {
+  position: absolute;
+  inset: -6rem 0 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.glowViolet {
+  position: absolute;
+  top: 2%;
+  right: -10%;
+  width: min(70vw, 980px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    rgb(167 139 250 / 0.42),
+    rgb(196 181 253 / 0.2) 52%,
+    transparent 74%
+  );
+  translate: calc(var(--px) * -10px) calc(var(--py) * -8px);
+}
+
+.glowPink {
+  position: absolute;
+  right: 12%;
+  bottom: -8%;
+  width: min(52vw, 700px);
+  aspect-ratio: 1.5;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(249 168 212 / 0.32), transparent 72%);
+}
+
+.glowSky {
+  position: absolute;
+  top: -12%;
+  left: -14%;
+  width: min(60vw, 820px);
+  aspect-ratio: 1.3;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(186 230 253 / 0.5), transparent 72%);
+}
+
+.dots {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgb(109 74 255 / 0.13) 1px, transparent 1.3px);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(52% 50% at 72% 42%, #000 20%, transparent 78%);
+}
+
+.cloud {
+  position: absolute;
+  border-radius: 999px;
+  background: radial-gradient(closest-side, #fff, rgb(255 255 255 / 0.7) 50%, transparent 76%);
+  animation: cloudDrift 34s ease-in-out infinite alternate;
+}
+
+.cloudA {
+  right: 2%;
+  bottom: 8%;
+  width: 42rem;
+  height: 9rem;
+}
+
+.cloudB {
+  right: 30%;
+  bottom: 2%;
+  width: 30rem;
+  height: 7rem;
+  animation-duration: 46s;
+  animation-direction: alternate-reverse;
+}
+
+.cloudC {
+  right: -6%;
+  top: 30%;
+  width: 22rem;
+  height: 6rem;
+  opacity: 0.8;
+  animation-duration: 52s;
+}
+
+/* ── Copy ─────────────────────────────────────────────────────────────────── */
+
+.rise {
+  animation: rise 950ms var(--ease-out-expo) both;
+  animation-delay: var(--d, 0ms);
+}
+
+.line {
+  display: block;
+}
+
+.accent {
+  position: relative;
+  display: inline-block;
+  padding-right: 0.06em;
+  background-image: linear-gradient(
+    100deg,
+    #5b34f0 0%,
+    #8b5cf6 25%,
+    #b691ff 50%,
+    #8b5cf6 75%,
+    #5b34f0 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 7s linear infinite;
+}
+
+/* The brush-stroke under "Ship": drawn once the headline has landed. */
+.swoosh {
+  position: absolute;
+  left: -2%;
+  bottom: -0.16em;
+  width: 108%;
+  height: 0.32em;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.swoosh path {
+  fill: none;
+  stroke-width: 7;
+  stroke-linecap: round;
+  stroke-dasharray: 260;
+  stroke-dashoffset: 260;
+  animation: draw 1100ms 850ms var(--ease-out-expo) forwards;
+}
+
+.social {
+  transition: color 200ms;
+}
+
+.socialIcon {
+  transition: transform 500ms var(--ease-out-expo);
+}
+
+.social:hover .socialIcon {
+  transform: rotate(-14deg) scale(1.18);
+}
+
+/* ── Visual ───────────────────────────────────────────────────────────────── */
+
+.visual {
+  animation: visualIn 1300ms 150ms var(--ease-out-expo) both;
+}
+
+.island {
+  translate: calc(var(--px) * -16px) calc(var(--py) * -10px);
+  transition: translate 120ms linear;
+}
+
+/* Hand-written note: wiped in left to right, as if being written. */
+.note {
+  translate: calc(var(--px) * 10px) calc(var(--py) * 6px);
+}
+
+.noteText {
+  rotate: -7deg;
+}
+
+/* Each line is wiped in after the one above, the way it would be written. */
+.noteLine {
+  display: block;
+  animation: write 720ms cubic-bezier(0.55, 0, 0.35, 1) both;
+  animation-delay: var(--d, 900ms);
+}
+
+.noteArrow path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 200;
+  stroke-dashoffset: 200;
+  animation: draw 900ms 2100ms var(--ease-out-expo) forwards;
+}
+
+.noteArrow path + path {
+  animation-delay: 2700ms;
+}
+
+/* "Enter 3D World": a streak of light runs round the pill's edge. */
+.enter {
+  position: relative;
+  display: inline-flex;
+  padding: 2px;
+  border-radius: 999px;
+  overflow: hidden;
+  isolation: isolate;
+  box-shadow: 0 18px 40px -16px rgb(91 52 240 / 0.75);
+  animation: rise 950ms 650ms var(--ease-out-expo) both;
+}
+
+.enter::before {
+  content: '';
+  position: absolute;
+  inset: -160%;
+  z-index: -1;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0 58%,
+    rgb(196 181 253 / 0.9) 72%,
+    #fff 78%,
+    #8b5cf6 86%,
+    transparent 96%
+  );
+  animation: spin 3.6s linear infinite;
+}
+
+.enter::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  border-radius: inherit;
+  background: rgb(109 74 255 / 0.35);
+}
+
+.enterPulse {
+  position: absolute;
+  inset: -6px;
+  border-radius: 999px;
+  border: 1px solid rgb(139 92 246 / 0.5);
+  animation: pulse 2.6s var(--ease-out-expo) infinite;
+  pointer-events: none;
+}
+
+.hint {
+  animation: fadeIn 900ms 2400ms both;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .hintMouse {
+    display: none;
+  }
+}
+
+/* ── Keyframes (local: CSS-module keyframe names are scoped) ──────────────── */
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(26px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes visualIn {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes shimmer {
+  to {
+    background-position: 200% center;
+  }
+}
+
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes write {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.9;
+    transform: scale(0.96);
+  }
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(1.18, 1.5);
+  }
+}
+
+@keyframes cloudDrift {
+  from {
+    transform: translateX(-28px);
+  }
+  to {
+    transform: translateX(36px);
+  }
+}
