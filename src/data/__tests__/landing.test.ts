@@ -65,7 +65,7 @@ describe('landing data', () => {
       expect(project.disciplines.length).toBeGreaterThan(0);
       expect(project.href.startsWith('https://')).toBe(true);
       expect(project.href).toContain(project.host);
-      // Open-source products are described as the platform, never as Ryan's own engineering.
+      // Open-source products are described as the platform, never as Onyx's own engineering.
       if (project.openSource) expect(project.engineering).toBeUndefined();
     }
   });

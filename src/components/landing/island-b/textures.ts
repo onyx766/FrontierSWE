@@ -16,7 +16,7 @@ import { FACADES, FLOWER_COLORS, GROUND, TREE_COLORS, TRUNK, type FacadeLook } f
 /**
  * Everything static is painted once, here, into offscreen canvases: the island
  * top, every building facade (one atlas), tree and cloud sprites, glows and the
- * "R". The renderer then only maps these onto the moving geometry with affine
+ * "O". The renderer then only maps these onto the moving geometry with affine
  * transforms, which is what keeps a frame to a few hundred cheap draw calls.
  */
 
@@ -458,7 +458,7 @@ function windowBox(look: FacadeLook, col: number, row: number, cols: number, row
   }
 }
 
-/** Rows (from the top) of the main tower shaft kept dark for the "R". */
+/** Rows (from the top) of the main tower shaft kept dark for the "O". */
 export const EMBLEM_V0 = 0.04;
 export const EMBLEM_V1 = 0.27;
 
@@ -517,7 +517,7 @@ function paintFacade(
   g.globalAlpha = 1;
 
   if (emblem) {
-    // A dark glass panel behind the "R", with a fine violet frame.
+    // A dark glass panel behind the "O", with a fine violet frame.
     const top = y + EMBLEM_V0 * h;
     const height = (EMBLEM_V1 - EMBLEM_V0) * h;
     g.fillStyle = '#16134a';
@@ -656,7 +656,7 @@ export function paintFacadeAtlas(model: IslandModel, density: number): FacadeAtl
     const look = FACADES[tier.style];
     const cols = Math.max(2, Math.round(item.worldW / look.cellW));
     const rows = Math.max(1, Math.round(item.worldH / look.cellH));
-    // The "R" sits on the two opposite width faces, so exactly one is in view at a time.
+    // The "O" sits on the two opposite width faces, so exactly one is in view at a time.
     const emblem = tier.style === 'towerMain' && item.kind === 0;
     paintFacade(g, item.x, item.y, item.w, item.h, look, cols, rows, rng, emblem);
     rects.set([item.x, item.y, item.w, item.h], item.slot * 4);
@@ -996,9 +996,15 @@ export function paintWaterfall(w = 32, h = 128): HTMLCanvasElement {
   return canvas;
 }
 
-/** The logo mark's "R" (same path as the nav logo), glowing white-violet. */
-const R_BOWL = 'M6 4h11.5c4.7 0 8 3.1 8 7.6s-3.3 7.6-8 7.6h-5.1V28H6Zm6.4 5.2V14H17c1.7 0 2.6-1 2.6-2.4S18.7 9.2 17 9.2Z';
-const R_LEG = 'M15.4 21.4h6.7L27 28h-6.7Z';
+/** The logo mark's "O" (same ring as the nav logo), glowing white-violet. */
+/** Ring radius and stroke, in the 32-unit logo box. */
+const O_RADIUS = 9.6;
+const O_WIDTH = 5;
+/** The long arc, then the short one, in degrees clockwise from 3 o'clock. */
+const O_ARCS: [from: number, to: number][] = [
+  [70, 335],
+  [345, 420],
+];
 /** Fraction of the emblem sprite taken by glow padding on each side. */
 export const EMBLEM_PAD = 0.22;
 
@@ -1008,36 +1014,33 @@ export function paintEmblem(size = 192): HTMLCanvasElement {
   const inner = size * (1 - EMBLEM_PAD * 2);
   // The glyph spans about 24 x 24 units of the 32-unit logo box.
   const unit = inner / 24;
-  const bowl = new Path2D(R_BOWL);
-  const leg = new Path2D(R_LEG);
   const place = () => {
-    g.setTransform(unit, 0, 0, unit, size / 2 - 16.6 * unit, size / 2 - 16 * unit);
-    g.transform(1, 0, Math.tan((-8 * Math.PI) / 180), 1, 3.4, 0);
+    g.setTransform(unit, 0, 0, unit, size / 2 - 15.75 * unit, size / 2 - 16 * unit);
+    g.transform(1, 0, Math.tan((-8 * Math.PI) / 180), 1, 2, 0);
+  };
+  const ring = () => {
+    for (const [from, to] of O_ARCS) {
+      g.beginPath();
+      g.arc(16, 16, O_RADIUS, (from * Math.PI) / 180, (to * Math.PI) / 180);
+      g.stroke();
+    }
   };
   place();
-  g.lineJoin = 'round';
-  // Wide violet-blue glow first, then a bright core thickened by a stroke so the
-  // mark still reads as an "R" (leg included) at a few dozen pixels.
+  g.lineWidth = O_WIDTH;
+  // Wide violet-blue glow first, then a bright core over it, so the mark still
+  // reads as an "O" at a few dozen pixels.
   g.shadowColor = 'rgba(124, 92, 255, 1)';
   g.shadowBlur = size * 0.14;
-  g.fillStyle = '#c9bbff';
   g.strokeStyle = '#c9bbff';
-  g.lineWidth = 2.2;
-  g.fill(bowl, 'evenodd');
-  g.fill(leg);
-  g.stroke(leg);
+  ring();
   g.shadowBlur = size * 0.05;
   g.shadowColor = 'rgba(170, 200, 255, 1)';
   const core = g.createLinearGradient(6, 4, 26, 28);
   core.addColorStop(0, '#ffffff');
   core.addColorStop(1, '#eef0ff');
-  g.fillStyle = core;
   g.strokeStyle = core;
-  g.lineWidth = 1.1;
-  g.fill(bowl, 'evenodd');
-  g.stroke(bowl);
-  g.fill(leg);
-  g.stroke(leg);
+  g.lineWidth = O_WIDTH - 1.4;
+  ring();
   g.setTransform(1, 0, 0, 1, 0, 0);
   return canvas;
 }

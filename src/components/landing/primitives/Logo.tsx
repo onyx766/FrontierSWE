@@ -1,9 +1,9 @@
 import { cn } from '@/lib/utils';
 
 /**
- * The "R" mark: a slanted stem-and-bowl with the leg cut free, in the violet
- * gradient. `uid` keeps gradient ids unique when the mark appears twice on a
- * page (nav and footer).
+ * The "O" mark: a skewed ring broken at the lower right, where the shorter arc
+ * picks up the lighter end of the violet gradient. `uid` keeps gradient ids
+ * unique when the mark appears twice on a page (nav and footer).
  */
 export function LogoMark({ uid, className }: { uid: string; className?: string }) {
   const main = `lp-logo-${uid}-main`;
@@ -21,13 +21,27 @@ export function LogoMark({ uid, className }: { uid: string; className?: string }
           <stop offset="1" stopColor="#c084fc" />
         </linearGradient>
       </defs>
-      <g transform="translate(3.4 0) skewX(-8)">
-        <path
-          fillRule="evenodd"
-          fill={`url(#${main})`}
-          d="M6 4h11.5c4.7 0 8 3.1 8 7.6s-3.3 7.6-8 7.6h-5.1V28H6Zm6.4 5.2V14H17c1.7 0 2.6-1 2.6-2.4S18.7 9.2 17 9.2Z"
+      {/* The skew gives the ring the same slant the wordmark carries. */}
+      <g transform="translate(2 0) skewX(-8)" fill="none" strokeWidth="5.2">
+        {/* pathLength 100 makes each dash a plain percentage of the ring. */}
+        <circle
+          cx="16"
+          cy="16"
+          r="10"
+          pathLength="100"
+          stroke={`url(#${main})`}
+          strokeDasharray="73.6 26.4"
+          transform="rotate(70 16 16)"
         />
-        <path fill={`url(#${leg})`} d="M15.4 21.4h6.7L27 28h-6.7Z" />
+        <circle
+          cx="16"
+          cy="16"
+          r="10"
+          pathLength="100"
+          stroke={`url(#${leg})`}
+          strokeDasharray="20.8 79.2"
+          transform="rotate(345 16 16)"
+        />
       </g>
     </svg>
   );

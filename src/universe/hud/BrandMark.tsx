@@ -1,10 +1,11 @@
-/** The glowing R on its shield, drawn from the composition's top-left badge. */
+/** The glowing O on its shield, drawn from the composition's top-left badge. */
 
 const SHIELD =
   'M32 6.2 Q42 8.6 50.4 13.2 Q55 21 55.2 29.6 Q55 37.6 50 44.4 Q41.6 50.4 32 53.4 Q22.4 50.4 14 44.4 Q9 37.6 8.8 29.6 Q9 21 13.6 13.2 Q22 8.6 32 6.2 Z';
 
+/* An O: the outer ring, then the counter, cut out by the even-odd rule. */
 const LETTER =
-  'M21.1 17.8H38.3C43.3 17.8 46.3 20.6 46.3 24.7C46.3 28.7 43.6 31.3 39.1 32.2L45.8 42.8H38.7L32 33.1H27.2L24.2 42.8H18.1L21.7 30.6C22 29.6 22.7 29.1 23.8 29.1H37.6C39.3 29.1 40.3 27.6 40.3 25.8C40.3 24 39.3 22.8 37.6 22.8H22.8Z';
+  'M19 30.3a13 12.5 0 1 0 26 0a13 12.5 0 1 0-26 0ZM25.4 30.3a6.6 6.2 0 1 0 13.2 0a6.6 6.2 0 1 0-13.2 0Z';
 
 export function BrandMark() {
   return (
@@ -32,8 +33,8 @@ export function BrandMark() {
       <path d="M14.2 13.2 11.8 11.4M49.8 13.2l2-2" stroke="#8fa6e6" strokeOpacity="0.32" strokeWidth="0.8" />
       <path d="M13.8 44.6 11 46.8M50.2 44.6 53 46.8" stroke="#a58aff" strokeOpacity="0.85" strokeWidth="1.1" />
 
-      <path d={LETTER} fill="#4b93ff" filter="url(#uh-mark-blur)" />
-      <path d={LETTER} fill="url(#uh-mark-letter)" />
+      <path d={LETTER} fillRule="evenodd" fill="#4b93ff" filter="url(#uh-mark-blur)" />
+      <path d={LETTER} fillRule="evenodd" fill="url(#uh-mark-letter)" />
     </svg>
   );
 }

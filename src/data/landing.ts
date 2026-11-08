@@ -90,9 +90,13 @@ export interface HeroStat {
 }
 
 export const heroStats: HeroStat[] = [
-  { icon: 'calendar', value: { count: 8, suffix: '+' }, label: 'Years Experience' },
-  // [CONFIRM] From the design; not stated anywhere else on the site.
-  { icon: 'layers', value: { count: 30, suffix: '+' }, label: 'Projects Delivered' },
+  // Counted from the one figure in the profile, so the strip cannot drift from it.
+  {
+    icon: 'calendar',
+    value: { count: Number.parseInt(profile.yearsExperience, 10), suffix: '+' },
+    label: 'Years Experience',
+  },
+  { icon: 'layers', value: { count: 37, suffix: '+' }, label: 'Projects Delivered' },
   { icon: 'sparkles', value: { text: 'AI / LLM' }, label: 'Production Experience', accent: true },
   { icon: 'wand', value: { text: 'End-to-End' }, label: 'Design → Build → Deploy' },
   { icon: 'status', value: { text: 'Available for Work' }, label: "Let's build something together." },
@@ -263,10 +267,10 @@ export const skillTabs: SkillTab[] = [
 
 /**
  * The Engineering Work Archive. Every statement here is either from the
- * project's own live site, from its repository, or from what Ryan has said
+ * project's own live site, from its repository, or from what Onyx has said
  * about his role. Nothing is estimated: no metrics, no invented duties.
  *
- *   `contribution` — Ryan's own part. Keep it to what he actually did.
+ *   `contribution` — Onyx's own part. Keep it to what he actually did.
  *   `engineering`  — verified from the code (Zypact, BPS) …
  *   `capabilities` — … or, where that isn't available, what the product does,
  *                    labelled as such on the page.
@@ -299,7 +303,7 @@ export interface LandingProject {
   tagline: string;
   /** What the product does. */
   summary: string;
-  /** What Ryan did on it. */
+  /** What Onyx did on it. */
   contribution: string;
   /** Engineering verified from the codebase. */
   engineering?: string[];
@@ -313,7 +317,7 @@ export interface LandingProject {
   screenshot?: { src: string; alt: string };
   /** An animated illustration (ProjectVisual). */
   visual?: ProjectVisualKind;
-  /** Set for open-source products Ryan worked with but did not create. */
+  /** Set for open-source products Onyx worked with but did not create. */
   openSource?: { platform: string };
   /** The system diagram the 3D world's hologram draws, where the architecture is known. */
   architecture?: ArchitectureSpec;

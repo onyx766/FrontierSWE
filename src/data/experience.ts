@@ -2,7 +2,7 @@ import type { ExperienceEntry, StackGroup } from '@/lib/types';
 
 /**
  * ─────────────────────────────────────────────────────────────────────────────
- * EXPERIENCE  —  from Ryan's resume (Ryan_Ma.pdf)
+ * EXPERIENCE  —  from Onyx's resume
  * ─────────────────────────────────────────────────────────────────────────────
  * The one career record: the homepage timeline and the 3D world's Experience
  * Archive both read it. Figures are the resume's own. Newest first.

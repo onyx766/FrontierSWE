@@ -10,7 +10,7 @@ import type { Profile } from '@/lib/types';
  */
 
 export const profile: Profile = {
-  name: 'Ryan',
+  name: 'Onyx',
   role: 'Senior AI / Full-Stack Engineer',
   tagline: 'Building production AI systems, scalable backends and SaaS products.',
   yearsExperience: '6+',

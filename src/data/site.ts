@@ -1,7 +1,7 @@
 import type { DomainId } from '@/lib/types';
 
-export const SITE_NAME = 'Ryan // Engineering Network';
-export const SITE_SHORT_NAME = 'Ryan';
+export const SITE_NAME = 'Onyx // Engineering Network';
+export const SITE_SHORT_NAME = 'Onyx';
 export const SITE_DESCRIPTION =
   'Senior AI / Full-Stack Engineer. Production AI systems, scalable backends, SaaS products. 6+ years. Available for projects.';
 

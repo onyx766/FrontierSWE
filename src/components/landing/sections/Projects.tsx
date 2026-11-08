@@ -259,7 +259,7 @@ function PairShowcase({ projects }: { projects: LandingProject[] }) {
   );
 }
 
-/** Open-source PHP products Ryan worked on, framed clearly as not his to claim. */
+/** Open-source PHP products Onyx worked on, framed clearly as not his to claim. */
 function OpenSourceShowcase({ projects }: { projects: LandingProject[] }) {
   return (
     <div className={a.oss}>

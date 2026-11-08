@@ -1,8 +1,8 @@
 {
-  "name": "ryan-engineering-network",
+  "name": "onyx-engineering-network",
   "version": "0.1.0",
   "private": true,
-  "description": "Ryan — Senior AI / Full-Stack Engineer. AI Engineering Mission Control portfolio.",
+  "description": "Onyx — Senior AI / Full-Stack Engineer. AI Engineering Mission Control portfolio.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

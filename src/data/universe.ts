@@ -88,7 +88,7 @@ export const islands: IslandContent[] = [
     accent: 'blue',
     arrival: 'Who builds all of this, and how.',
     stations: [
-      { id: 'about-profile', title: 'About Ryan', subject: { type: 'about' }, angle: -42 },
+      { id: 'about-profile', title: 'About Onyx', subject: { type: 'about' }, angle: -42 },
       { id: 'engineering-principles', title: 'Engineering Principles', subject: { type: 'principles' }, angle: 42 },
     ],
   },
@@ -191,7 +191,7 @@ export const tourOrder: string[] = [
 ];
 
 /** The plate on the crystal. */
-export const corePlate = { title: 'RYAN', lines: ['AI / FULL-STACK', 'ENGINEER'] };
+export const corePlate = { title: 'ONYX', lines: ['AI / FULL-STACK', 'ENGINEER'] };
 
 /** Tag on a station hologram whose content is still placeholder. */
 export const placeholderLabel = 'Placeholder';
@@ -229,7 +229,7 @@ export const controlsHelp: { keys: string[]; label: string }[] = [
 /** Every word on the HUD that does not come from the content above. */
 export const hudCopy = {
   /** The world's own name in its top bar; the plain site keeps `SITE_NAME`. */
-  brand: { name: 'Ryan', title: 'Engineering Universe' },
+  brand: { name: 'Onyx', title: 'Engineering Universe' },
   exit: { label: 'Exit 3D', long: 'Return to portfolio' },
   skipToLog: 'Skip to mission log',
   cta: 'Start a Project',

@@ -4,7 +4,7 @@ import a from './ProjectsArchive.module.css';
 
 /**
  * Generic illustrations for the open-source PHP work: an ERP ledger and a
- * Kanban board. Deliberately unbranded, since the products are not Ryan's.
+ * Kanban board. Deliberately unbranded, since the products are not Onyx's.
  * Decorative only; the text beside them carries the content.
  */
 

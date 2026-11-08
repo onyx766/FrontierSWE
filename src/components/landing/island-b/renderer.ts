@@ -1289,7 +1289,7 @@ export class IslandRenderer {
     ctx.fillRect(-tier.hw, -tier.hd, tier.hw * 2, tier.hd * 2);
     if (isTop) this.drawRoofDetail(b, tier, look);
 
-    // The tower's "R", lit from within, so it goes on after the shading.
+    // The tower's "O", lit from within, so it goes on after the shading.
     for (let w = 0; w < count; w += 1) {
       const o = w * WALL;
       const nz = walls[o + 7]!;

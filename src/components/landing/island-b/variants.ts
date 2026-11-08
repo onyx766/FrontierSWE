@@ -56,7 +56,7 @@ export const VARIANTS: Record<IslandVariant, VariantConfig> = {
   hero: {
     phi: 30 * DEG,
     spin: TAU / 80,
-    // The "R" turned toward the light, a waterfall at the front right.
+    // The "O" turned toward the light, a waterfall at the front right.
     theta0: -2.45,
     bob: 0.022,
     nudge: 4 * DEG,
